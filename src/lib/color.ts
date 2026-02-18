@@ -23,9 +23,9 @@ export function hexToOklch(hex: string): { C: number; H: number; L: number } {
 	let color = new Color(hex)
 	let oklch = color.to('oklch')
 	return {
-		L: oklch.coords[0],
-		C: oklch.coords[1] || 0, // Chroma can be NaN for grays
-		H: oklch.coords[2] || 0, // Hue can be NaN for achromatic
+		L: oklch.coords[0] ?? 0,
+		C: oklch.coords[1] ?? 0, // Chroma can be NaN for grays
+		H: oklch.coords[2] ?? 0, // Hue can be NaN for achromatic
 	}
 }
 
