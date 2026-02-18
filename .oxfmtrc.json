@@ -1,0 +1,16 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"singleQuote": true,
+	"jsxSingleQuote": false,
+	"semi": false,
+	"useTabs": true,
+	"overrides": [
+		{
+			"files": ["**/*.css"],
+			"options": {
+				"singleQuote": false,
+				"printWidth": 120
+			}
+		}
+	]
+}

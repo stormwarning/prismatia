@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Prismatia — OKLCH Scale Editor</title>
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>"
+		/>
+		<style>
+			/* Critical CSS - prevents flash of unstyled content */
+			html {
+				background: #0b0c11;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="app">
+			<header class="app-header-container">
+				<app-header></app-header>
+			</header>
+
+			<section class="color-strip-container">
+				<color-strip></color-strip>
+			</section>
+
+			<section class="editor-container">
+				<swatch-editor></swatch-editor>
+			</section>
+
+			<section class="graphs-container">
+				<lch-graph channel="L"></lch-graph>
+				<lch-graph channel="C"></lch-graph>
+				<lch-graph channel="H"></lch-graph>
+			</section>
+		</div>
+
+		<script type="module" src="/src/main.ts"></script>
+
+		<style>
+			.app {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				padding: var(--space-xl);
+				gap: var(--space-lg);
+				max-width: 1400px;
+				margin: 0 auto;
+			}
+
+			.app-header-container {
+				padding-bottom: var(--space-md);
+				border-bottom: 1px solid var(--border);
+			}
+
+			.color-strip-container {
+				padding: var(--space-md) 0;
+			}
+
+			.editor-container {
+				min-height: 0; /* Allows it to collapse when empty */
+			}
+
+			.graphs-container {
+				display: flex;
+				flex-direction: column;
+				gap: var(--space-md);
+				flex: 1;
+			}
+
+			@media (max-width: 768px) {
+				.app {
+					padding: var(--space-md);
+				}
+			}
+
+			/* Toast animation */
+			@keyframes toast-in {
+				from {
+					opacity: 0;
+					transform: translateX(-50%) translateY(10px);
+				}
+				to {
+					opacity: 1;
+					transform: translateX(-50%) translateY(0);
+				}
+			}
+		</style>
+	</body>
+</html>
