@@ -3,95 +3,96 @@ import { getValidRangesForChannel, type ValueRange } from '../lib/color.js'
 import { $activeIndex, $fullScale, selectSwatch, updateStep } from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { type Channel, CHANNEL_CONFIGS, type FullColorStep } from '../types'
+import { css, html } from './_utilities.js'
 
-const styles = `
-  :host {
-    display: block;
-  }
+const styles = css`
+	:host {
+		display: block;
+	}
 
-  .graph-wrapper {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-  }
+	.graph-wrapper {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-md);
+	}
 
-  .graph-title {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-dim);
-    margin-bottom: var(--space-md);
-  }
+	.graph-title {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--text-dim);
+		margin-bottom: var(--space-md);
+	}
 
-  svg {
-    width: 100%;
-    height: 200px;
-    display: block;
-    cursor: crosshair;
-    overflow: visible;
-  }
+	svg {
+		width: 100%;
+		height: 200px;
+		display: block;
+		cursor: crosshair;
+		overflow: visible;
+	}
 
-  .grid-line {
-    stroke: rgba(255, 255, 255, 0.06);
-    stroke-width: 1;
-  }
+	.grid-line {
+		stroke: rgba(255, 255, 255, 0.06);
+		stroke-width: 1;
+	}
 
-  .invalid-region {
-    fill: rgba(255, 255, 255, 0.04);
-  }
+	.invalid-region {
+		fill: rgba(255, 255, 255, 0.04);
+	}
 
-  .value-line {
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+	.value-line {
+		fill: none;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
 
-  .point-group {
-    cursor: grab;
-  }
+	.point-group {
+		cursor: grab;
+	}
 
-  .point-group:active {
-    cursor: grabbing;
-  }
+	.point-group:active {
+		cursor: grabbing;
+	}
 
-  .point-bg {
-    fill: #13141a;
-  }
+	.point-bg {
+		fill: #13141a;
+	}
 
-  .point-color {
-    transition: r 0.1s ease-out;
-  }
+	.point-color {
+		transition: r 0.1s ease-out;
+	}
 
-  .point-group:hover .point-color {
-    r: 7;
-  }
+	.point-group:hover .point-color {
+		r: 7;
+	}
 
-  .point-ring {
-    fill: none;
-    stroke: white;
-    stroke-width: 2;
-    opacity: 0;
-  }
+	.point-ring {
+		fill: none;
+		stroke: white;
+		stroke-width: 2;
+		opacity: 0;
+	}
 
-  .point-group.active .point-ring {
-    opacity: 1;
-  }
+	.point-group.active .point-ring {
+		opacity: 1;
+	}
 
-  .value-label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    fill: rgba(255, 255, 255, 0.6);
-    text-anchor: middle;
-  }
+	.value-label {
+		font-family: 'IBM Plex Mono', monospace;
+		font-size: 10px;
+		fill: rgba(255, 255, 255, 0.6);
+		text-anchor: middle;
+	}
 
-  .value-label.active {
-    fill: white;
-    font-weight: 600;
-  }
+	.value-label.active {
+		fill: white;
+		font-weight: 600;
+	}
 `
 
 interface DragState {
@@ -153,19 +154,21 @@ export class LchGraph extends HTMLElement {
 	private render() {
 		let config = CHANNEL_CONFIGS[this.channel]
 
-		this.shadow.innerHTML = `
-      <style>${styles}</style>
-      <div class="graph-wrapper">
-        <div class="graph-title">${config.label}</div>
-        <svg viewBox="0 0 100 200" preserveAspectRatio="none">
-          <g class="grid"></g>
-          <g class="invalid-regions"></g>
-          <path class="value-line"></path>
-          <g class="points"></g>
-          <g class="labels"></g>
-        </svg>
-      </div>
-    `
+		this.shadow.innerHTML = html`
+			<style>
+				${styles}
+			</style>
+			<div class="graph-wrapper">
+				<div class="graph-title">${config.label}</div>
+				<svg viewBox="0 0 100 200" preserveAspectRatio="none">
+					<g class="grid"></g>
+					<g class="invalid-regions"></g>
+					<path class="value-line"></path>
+					<g class="points"></g>
+					<g class="labels"></g>
+				</svg>
+			</div>
+		`
 
 		this.svg = this.shadow.querySelector('svg')!
 

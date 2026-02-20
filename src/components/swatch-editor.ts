@@ -2,163 +2,164 @@ import { hexToOklch } from '../lib/color.js'
 import { $activeFullColor, $activeIndex, selectSwatch, updateActiveStep } from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { CHANNEL_CONFIGS } from '../types'
+import { css, html } from './_utilities.js'
 
-const styles = `
-  :host {
-    display: block;
-  }
+const styles = css`
+	:host {
+		display: block;
+	}
 
-  .editor {
-    display: none;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-  }
+	.editor {
+		display: none;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-lg);
+	}
 
-  .editor.active {
-    display: block;
-  }
+	.editor.active {
+		display: block;
+	}
 
-  .editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-md);
-  }
+	.editor-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: var(--space-md);
+	}
 
-  .editor-title {
-    font-size: 14px;
-    font-weight: 600;
-    font-family: var(--font-mono);
-  }
+	.editor-title {
+		font-size: 14px;
+		font-weight: 600;
+		font-family: var(--font-mono);
+	}
 
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 20px;
-    padding: var(--space-xs);
-    line-height: 1;
-    transition: color 0.1s;
-  }
+	.close-btn {
+		background: none;
+		border: none;
+		color: var(--text-muted);
+		font-size: 20px;
+		padding: var(--space-xs);
+		line-height: 1;
+		transition: color 0.1s;
+	}
 
-  .close-btn:hover {
-    color: var(--text);
-  }
+	.close-btn:hover {
+		color: var(--text);
+	}
 
-  .editor-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-md);
-  }
+	.editor-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: var(--space-md);
+	}
 
-  @media (max-width: 800px) {
-    .editor-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
+	@media (max-width: 800px) {
+		.editor-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
+	.field {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
 
-  .field label {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-dim);
-  }
+	.field label {
+		font-family: var(--font-mono);
+		font-size: 10px;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--text-dim);
+	}
 
-  .input-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-  }
+	.input-group {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
 
-  input[type="range"] {
-    flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--surface-2);
-    outline: none;
-    cursor: pointer;
-  }
+	input[type='range'] {
+		flex: 1;
+		height: 6px;
+		border-radius: 3px;
+		background: var(--surface-2);
+		outline: none;
+		cursor: pointer;
+	}
 
-  input[type="range"]::-webkit-slider-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: grab;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.1s;
-  }
+	input[type='range']::-webkit-slider-thumb {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--accent);
+		cursor: grab;
+		box-shadow: var(--shadow-sm);
+		transition: transform 0.1s;
+	}
 
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-  }
+	input[type='range']::-webkit-slider-thumb:hover {
+		transform: scale(1.1);
+	}
 
-  input[type="range"]::-webkit-slider-thumb:active {
-    cursor: grabbing;
-  }
+	input[type='range']::-webkit-slider-thumb:active {
+		cursor: grabbing;
+	}
 
-  input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: none;
-    cursor: grab;
-    box-shadow: var(--shadow-sm);
-  }
+	input[type='range']::-moz-range-thumb {
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--accent);
+		border: none;
+		cursor: grab;
+		box-shadow: var(--shadow-sm);
+	}
 
-  input[type="number"],
-  input[type="text"] {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    padding: 6px 8px;
-    outline: none;
-    width: 70px;
-    -moz-appearance: textfield;
-  }
+	input[type='number'],
+	input[type='text'] {
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		padding: 6px 8px;
+		outline: none;
+		width: 70px;
+		-moz-appearance: textfield;
+	}
 
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+	}
 
-  input[type="text"].hex-input {
-    width: 90px;
-  }
+	input[type='text'].hex-input {
+		width: 90px;
+	}
 
-  input:focus {
-    border-color: var(--border-focus);
-  }
+	input:focus {
+		border-color: var(--border-focus);
+	}
 
-  .gamut-warning {
-    grid-column: 1 / -1;
-    background: rgba(255, 107, 53, 0.1);
-    border: 1px solid rgba(255, 107, 53, 0.3);
-    border-radius: var(--radius-md);
-    padding: 10px 12px;
-    font-size: 12px;
-    color: var(--error);
-    font-family: var(--font-mono);
-    display: none;
-  }
+	.gamut-warning {
+		grid-column: 1 / -1;
+		background: rgba(255, 107, 53, 0.1);
+		border: 1px solid rgba(255, 107, 53, 0.3);
+		border-radius: var(--radius-md);
+		padding: 10px 12px;
+		font-size: 12px;
+		color: var(--error);
+		font-family: var(--font-mono);
+		display: none;
+	}
 
-  .gamut-warning.show {
-    display: block;
-  }
+	.gamut-warning.show {
+		display: block;
+	}
 `
 
 export class SwatchEditor extends HTMLElement {
@@ -200,12 +201,14 @@ export class SwatchEditor extends HTMLElement {
 		let color = $activeFullColor.get()
 		let isActive = $activeIndex.get() !== undefined
 
-		this.shadow.innerHTML = `
-      <style>${styles}</style>
-      <div class="editor ${isActive ? 'active' : ''}">
-        ${color ? this.renderEditor(color) : ''}
-      </div>
-    `
+		this.shadow.innerHTML = html`
+			<style>
+				${styles}
+			</style>
+			<div class="editor ${isActive ? 'active' : ''}">
+				${color ? this.renderEditor(color) : ''}
+			</div>
+		`
 
 		if (color) {
 			this.attachListeners()
@@ -251,87 +254,89 @@ export class SwatchEditor extends HTMLElement {
 	private renderEditor(color: NonNullable<ReturnType<typeof $activeFullColor.get>>): string {
 		let { L, C, H } = CHANNEL_CONFIGS
 
-		return `
-      <div class="editor-header">
-        <span class="editor-title">Edit ${String(color.stop)}</span>
-        <button class="close-btn" aria-label="Close editor">&times;</button>
-      </div>
-      <div class="editor-grid">
-        <div class="field">
-          <label>Lightness (L)</label>
-          <div class="input-group">
-            <input
-              type="range"
-              id="range-L"
-              min="${String(L.min)}"
-              max="${String(L.max)}"
-              step="${String(L.step)}"
-              value="${String(color.L)}"
-            >
-            <input
-              type="number"
-              id="num-L"
-              min="${String(L.min)}"
-              max="${String(L.max)}"
-              step="0.01"
-              value="${color.L.toFixed(3)}"
-            >
-          </div>
-        </div>
-        <div class="field">
-          <label>Chroma (C)</label>
-          <div class="input-group">
-            <input
-              type="range"
-              id="range-C"
-              min="${String(C.min)}"
-              max="${String(C.max)}"
-              step="${String(C.step)}"
-              value="${String(color.C)}"
-            >
-            <input
-              type="number"
-              id="num-C"
-              min="${String(C.min)}"
-              max="${String(C.max)}"
-              step="0.01"
-              value="${color.C.toFixed(3)}"
-            >
-          </div>
-        </div>
-        <div class="field">
-          <label>Hue (H)</label>
-          <div class="input-group">
-            <input
-              type="range"
-              id="range-H"
-              min="${String(H.min)}"
-              max="${String(H.max)}"
-              step="${String(H.step)}"
-              value="${String(color.H)}"
-            >
-            <input
-              type="number"
-              id="num-H"
-              min="${String(H.min)}"
-              max="${String(H.max)}"
-              step="1"
-              value="${color.H.toFixed(1)}"
-            >
-          </div>
-        </div>
-        <div class="field">
-          <label>Hex</label>
-          <input
-            type="text"
-            id="hex-input"
-            class="hex-input"
-            value="${color.hex}"
-            placeholder="#000000"
-          >
-        </div>
-      </div>
-    `
+		return html`
+			<div class="editor-header">
+				<span class="editor-title">Edit ${String(color.stop)}</span>
+				<button class="close-btn" aria-label="Close editor">
+					&times;
+				</button>
+			</div>
+			<div class="editor-grid">
+				<div class="field">
+					<label>Lightness (L)</label>
+					<div class="input-group">
+						<input
+							type="range"
+							id="range-L"
+							min="${String(L.min)}"
+							max="${String(L.max)}"
+							step="${String(L.step)}"
+							value="${String(color.L)}"
+						/>
+						<input
+							type="number"
+							id="num-L"
+							min="${String(L.min)}"
+							max="${String(L.max)}"
+							step="0.01"
+							value="${color.L.toFixed(3)}"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label>Chroma (C)</label>
+					<div class="input-group">
+						<input
+							type="range"
+							id="range-C"
+							min="${String(C.min)}"
+							max="${String(C.max)}"
+							step="${String(C.step)}"
+							value="${String(color.C)}"
+						/>
+						<input
+							type="number"
+							id="num-C"
+							min="${String(C.min)}"
+							max="${String(C.max)}"
+							step="0.01"
+							value="${color.C.toFixed(3)}"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label>Hue (H)</label>
+					<div class="input-group">
+						<input
+							type="range"
+							id="range-H"
+							min="${String(H.min)}"
+							max="${String(H.max)}"
+							step="${String(H.step)}"
+							value="${String(color.H)}"
+						/>
+						<input
+							type="number"
+							id="num-H"
+							min="${String(H.min)}"
+							max="${String(H.max)}"
+							step="1"
+							value="${color.H.toFixed(1)}"
+						/>
+					</div>
+				</div>
+				<div class="field">
+					<label>Hex</label>
+					<input
+						type="text"
+						id="hex-input"
+						class="hex-input"
+						value="${color.hex}"
+						placeholder="#000000"
+					/>
+				</div>
+			</div>
+		`
 	}
 
 	private attachListeners() {

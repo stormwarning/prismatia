@@ -1,103 +1,104 @@
 import { exportAsCSS, exportAsJSON, globalNudge, resetScale } from '../stores/scale.js'
 import type { Channel } from '../types'
+import { css, html } from './_utilities.js'
 
-const styles = `
-  :host {
-    display: block;
-  }
+const styles = css`
+	:host {
+		display: block;
+	}
 
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    flex-wrap: wrap;
-  }
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-lg);
+		flex-wrap: wrap;
+	}
 
-  .title {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
+	.title {
+		font-size: 20px;
+		font-weight: 600;
+		letter-spacing: -0.02em;
+	}
 
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-lg);
-    flex-wrap: wrap;
-  }
+	.controls {
+		display: flex;
+		align-items: center;
+		gap: var(--space-lg);
+		flex-wrap: wrap;
+	}
 
-  .nudge-group {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-  }
+	.nudge-group {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
 
-  .nudge-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
+	.nudge-label {
+		font-family: var(--font-mono);
+		font-size: 11px;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: var(--text-dim);
+	}
 
-  .nudge-buttons {
-    display: flex;
-    gap: 4px;
-  }
+	.nudge-buttons {
+		display: flex;
+		gap: 4px;
+	}
 
-  .nudge-btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-family: var(--font-mono);
-    font-size: 11px;
-    width: 32px;
-    height: 28px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.12s;
-  }
+	.nudge-btn {
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: 11px;
+		width: 32px;
+		height: 28px;
+		border-radius: var(--radius-sm);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.12s;
+	}
 
-  .nudge-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text);
-    border-color: var(--border-2);
-  }
+	.nudge-btn:hover {
+		background: rgba(255, 255, 255, 0.08);
+		color: var(--text);
+		border-color: var(--border-2);
+	}
 
-  .actions {
-    display: flex;
-    gap: var(--space-sm);
-  }
+	.actions {
+		display: flex;
+		gap: var(--space-sm);
+	}
 
-  .btn {
-    background: var(--surface-2);
-    border: 1px solid var(--border-2);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    padding: 7px 14px;
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    transition: all 0.12s;
-  }
+	.btn {
+		background: var(--surface-2);
+		border: 1px solid var(--border-2);
+		color: var(--text);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		padding: 7px 14px;
+		border-radius: var(--radius-md);
+		font-weight: 500;
+		transition: all 0.12s;
+	}
 
-  .btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-  }
+	.btn:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
 
-  .btn.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-  }
+	.btn.primary {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: white;
+	}
 
-  .btn.primary:hover {
-    background: var(--accent-hover);
-  }
+	.btn.primary:hover {
+		background: var(--accent-hover);
+	}
 `
 
 export class AppHeader extends HTMLElement {
@@ -114,7 +115,7 @@ export class AppHeader extends HTMLElement {
 	}
 
 	private render() {
-		this.shadow.innerHTML = `
+		this.shadow.innerHTML = html`
       <style>${styles}</style>
       <header class="header">
         <h1 class="title">Prismatia</h1>
@@ -183,21 +184,21 @@ export class AppHeader extends HTMLElement {
 		// Simple toast - could be enhanced
 		let toast = document.createElement('div')
 		toast.textContent = message
-		toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--surface-3);
-      color: var(--text);
-      padding: 12px 20px;
-      border-radius: var(--radius-md);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      box-shadow: var(--shadow-lg);
-      z-index: 1000;
-      animation: toast-in 0.2s ease-out;
-    `
+		toast.style.cssText = css`
+			position: fixed;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: var(--surface-3);
+			color: var(--text);
+			padding: 12px 20px;
+			border-radius: var(--radius-md);
+			font-family: var(--font-mono);
+			font-size: 13px;
+			box-shadow: var(--shadow-lg);
+			z-index: 1000;
+			animation: toast-in 0.2s ease-out;
+		`
 		document.body.append(toast)
 		setTimeout(() => {
 			toast.remove()
