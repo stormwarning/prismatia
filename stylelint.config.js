@@ -1,0 +1,16 @@
+/** @type {import('stylelint').Config} */
+const config = {
+	extends: ['@zazen/stylelint-config'],
+	ignoreFiles: ['**/dist'],
+	rules: {
+		/* … */
+	},
+	overrides: [
+		{
+			files: ['**/*.ts'],
+			customSyntax: 'postcss-lit',
+		},
+	],
+}
+
+export default config

@@ -21,40 +21,40 @@ const styles = css`
 
 	.label {
 		flex: 1;
-		text-align: center;
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 600;
 		color: var(--text-muted);
+		text-align: center;
 		letter-spacing: 0.02em;
 	}
 
 	.strip {
 		display: flex;
-		height: 72px;
-		border-radius: var(--radius-lg);
+		block-size: 72px;
 		overflow: hidden;
+		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
 	}
 
 	.swatch {
-		flex: 1;
+		position: relative;
 		display: flex;
+		flex: 1;
 		flex-direction: column;
+		gap: 2px;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
-		cursor: pointer;
-		transition: transform 0.12s ease-out;
-		position: relative;
-		border: none;
-		background: none;
 		padding: 0;
+		cursor: pointer;
+		background: none;
+		border: none;
+		transition: transform 0.12s ease-out;
 	}
 
 	.swatch:hover {
-		transform: scaleY(1.08);
 		z-index: 1;
+		transform: scaleY(1.08);
 	}
 
 	.swatch:focus-visible {
@@ -63,31 +63,30 @@ const styles = css`
 	}
 
 	.swatch.active::before {
-		content: '';
 		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 3px;
-		background: white;
-		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+		inset-block-start: 0;
+		inset-inline: 0;
+		block-size: 3px;
+		content: '';
+		background: #fff;
+		box-shadow: 0 1px 4px rgb(0 0 0 / 50%);
 	}
 
 	.swatch.out-of-gamut::after {
-		content: '!';
 		position: absolute;
-		top: 4px;
-		right: 4px;
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		background: var(--error);
-		font-size: 9px;
-		font-weight: 700;
+		inset-block-start: 4px;
+		inset-inline-end: 4px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: white;
+		inline-size: 14px;
+		block-size: 14px;
+		font-size: 9px;
+		font-weight: 700;
+		color: #fff;
+		content: '!';
+		background: var(--error);
+		border-radius: 50%;
 	}
 
 	.contrast-score {
@@ -95,15 +94,15 @@ const styles = css`
 		font-size: 12px;
 		font-weight: 600;
 		letter-spacing: 0.02em;
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+		text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 	}
 
 	.contrast-level {
 		font-family: var(--font-mono);
 		font-size: 9px;
 		font-weight: 500;
-		opacity: 0.8;
 		letter-spacing: 0.04em;
+		opacity: 0.8;
 	}
 `
 

@@ -11,37 +11,37 @@ const styles = css`
 	}
 
 	.graph-wrapper {
+		padding: var(--space-md);
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
-		padding: var(--space-md);
 	}
 
 	.graph-title {
+		margin-block-end: var(--space-md);
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 600;
+		color: var(--text-dim);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
-		color: var(--text-dim);
-		margin-bottom: var(--space-md);
 	}
 
 	svg {
-		width: 100%;
-		height: 200px;
 		display: block;
-		cursor: crosshair;
+		inline-size: 100%;
+		block-size: 200px;
 		overflow: visible;
+		cursor: crosshair;
 	}
 
 	.grid-line {
-		stroke: rgba(255, 255, 255, 0.06);
+		stroke: rgb(255 255 255 / 6%);
 		stroke-width: 1;
 	}
 
 	.invalid-region {
-		fill: rgba(255, 255, 255, 0.04);
+		fill: rgb(255 255 255 / 4%);
 	}
 
 	.value-line {
@@ -68,14 +68,15 @@ const styles = css`
 	}
 
 	.point-group:hover .point-color {
+		/* stylelint-disable-next-line declaration-property-value-no-unknown */
 		r: 7;
 	}
 
 	.point-ring {
-		fill: none;
-		stroke: white;
-		stroke-width: 2;
 		opacity: 0;
+		fill: none;
+		stroke: #fff;
+		stroke-width: 2;
 	}
 
 	.point-group.active .point-ring {
@@ -85,13 +86,13 @@ const styles = css`
 	.value-label {
 		font-family: 'IBM Plex Mono', monospace;
 		font-size: 10px;
-		fill: rgba(255, 255, 255, 0.6);
 		text-anchor: middle;
+		fill: rgb(255 255 255 / 60%);
 	}
 
 	.value-label.active {
-		fill: white;
 		font-weight: 600;
+		fill: #fff;
 	}
 `
 

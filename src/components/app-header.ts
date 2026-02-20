@@ -9,10 +9,10 @@ const styles = css`
 
 	.header {
 		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-lg);
 		align-items: center;
 		justify-content: space-between;
-		gap: var(--space-lg);
-		flex-wrap: wrap;
 	}
 
 	.title {
@@ -23,23 +23,23 @@ const styles = css`
 
 	.controls {
 		display: flex;
-		align-items: center;
-		gap: var(--space-lg);
 		flex-wrap: wrap;
+		gap: var(--space-lg);
+		align-items: center;
 	}
 
 	.nudge-group {
 		display: flex;
-		align-items: center;
 		gap: var(--space-sm);
+		align-items: center;
 	}
 
 	.nudge-label {
 		font-family: var(--font-mono);
 		font-size: 11px;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
 		color: var(--text-dim);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
 	}
 
 	.nudge-buttons {
@@ -48,23 +48,23 @@ const styles = css`
 	}
 
 	.nudge-btn {
-		background: var(--surface-2);
-		border: 1px solid var(--border);
-		color: var(--text-muted);
-		font-family: var(--font-mono);
-		font-size: 11px;
-		width: 32px;
-		height: 28px;
-		border-radius: var(--radius-sm);
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		inline-size: 32px;
+		block-size: 28px;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--text-muted);
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
 		transition: all 0.12s;
 	}
 
 	.nudge-btn:hover {
-		background: rgba(255, 255, 255, 0.08);
 		color: var(--text);
+		background: rgb(255 255 255 / 8%);
 		border-color: var(--border-2);
 	}
 
@@ -74,26 +74,26 @@ const styles = css`
 	}
 
 	.btn {
-		background: var(--surface-2);
-		border: 1px solid var(--border-2);
-		color: var(--text);
+		padding: 7px 14px;
 		font-family: var(--font-mono);
 		font-size: 12px;
-		padding: 7px 14px;
-		border-radius: var(--radius-md);
 		font-weight: 500;
+		color: var(--text);
+		background: var(--surface-2);
+		border: 1px solid var(--border-2);
+		border-radius: var(--radius-md);
 		transition: all 0.12s;
 	}
 
 	.btn:hover {
-		background: rgba(255, 255, 255, 0.1);
-		border-color: rgba(255, 255, 255, 0.2);
+		background: rgb(255 255 255 / 10%);
+		border-color: rgb(255 255 255 / 20%);
 	}
 
 	.btn.primary {
+		color: #fff;
 		background: var(--accent);
 		border-color: var(--accent);
-		color: white;
 	}
 
 	.btn.primary:hover {
@@ -116,29 +116,77 @@ export class AppHeader extends HTMLElement {
 
 	private render() {
 		this.shadow.innerHTML = html`
-      <style>${styles}</style>
-      <header class="header">
-        <h1 class="title">Prismatia</h1>
-        <div class="controls">
-          <div class="nudge-group">
-            <span class="nudge-label">Nudge All</span>
-            <div class="nudge-buttons">
-              <button class="nudge-btn" data-channel="L" data-delta="-0.05" title="L -5%">L−</button>
-              <button class="nudge-btn" data-channel="L" data-delta="0.05" title="L +5%">L+</button>
-              <button class="nudge-btn" data-channel="C" data-delta="-0.01" title="C -0.01">C−</button>
-              <button class="nudge-btn" data-channel="C" data-delta="0.01" title="C +0.01">C+</button>
-              <button class="nudge-btn" data-channel="H" data-delta="-5" title="H -5°">H−</button>
-              <button class="nudge-btn" data-channel="H" data-delta="5" title="H +5°">H+</button>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="btn" id="reset-btn">Reset</button>
-            <button class="btn" id="export-json-btn">Export JSON</button>
-            <button class="btn primary" id="copy-css-btn">Copy CSS</button>
-          </div>
-        </div>
-      </header>
-    `
+			<style>
+				${styles}
+			</style>
+			<header class="header">
+				<h1 class="title">Prismatia</h1>
+				<div class="controls">
+					<div class="nudge-group">
+						<span class="nudge-label">Nudge All</span>
+						<div class="nudge-buttons">
+							<button
+								class="nudge-btn"
+								data-channel="L"
+								data-delta="-0.05"
+								title="L -5%"
+							>
+								L−
+							</button>
+							<button
+								class="nudge-btn"
+								data-channel="L"
+								data-delta="0.05"
+								title="L +5%"
+							>
+								L+
+							</button>
+							<button
+								class="nudge-btn"
+								data-channel="C"
+								data-delta="-0.01"
+								title="C -0.01"
+							>
+								C−
+							</button>
+							<button
+								class="nudge-btn"
+								data-channel="C"
+								data-delta="0.01"
+								title="C +0.01"
+							>
+								C+
+							</button>
+							<button
+								class="nudge-btn"
+								data-channel="H"
+								data-delta="-5"
+								title="H -5°"
+							>
+								H−
+							</button>
+							<button
+								class="nudge-btn"
+								data-channel="H"
+								data-delta="5"
+								title="H +5°"
+							>
+								H+
+							</button>
+						</div>
+					</div>
+					<div class="actions">
+						<button class="btn" id="reset-btn">Reset</button>
+						<button class="btn" id="export-json-btn">
+							Export JSON
+						</button>
+						<button class="btn primary" id="copy-css-btn">
+							Copy CSS
+						</button>
+					</div>
+				</div>
+			</header>
+		`
 	}
 
 	private attachListeners() {
@@ -185,20 +233,20 @@ export class AppHeader extends HTMLElement {
 		let toast = document.createElement('div')
 		toast.textContent = message
 		toast.style.cssText = css`
-			position: fixed;
-			bottom: 20px;
-			left: 50%;
-			transform: translateX(-50%);
-			background: var(--surface-3);
-			color: var(--text);
-			padding: 12px 20px;
-			border-radius: var(--radius-md);
-			font-family: var(--font-mono);
-			font-size: 13px;
-			box-shadow: var(--shadow-lg);
-			z-index: 1000;
-			animation: toast-in 0.2s ease-out;
-		`
+  	position: fixed;
+  	inset-block-end: 20px;
+  	inset-inline-start: 50%;
+  	z-index: 1000;
+  	padding: 12px 20px;
+  	font-family: var(--font-mono);
+  	font-size: 13px;
+  	color: var(--text);
+  	background: var(--surface-3);
+  	border-radius: var(--radius-md);
+  	box-shadow: var(--shadow-lg);
+  	transform: translateX(-50%);
+  	animation: toast-in 0.2s ease-out;
+  `
 		document.body.append(toast)
 		setTimeout(() => {
 			toast.remove()
