@@ -1,6 +1,6 @@
 /* eslint-disable yoda */
 import { getValidRangesForChannel, type ValueRange } from '../lib/color.js'
-import { $activeIndex, $fullScale, selectSwatch, updateStep } from '../stores/scale.js'
+import { $activeIndex, $fullScale, $gamut, selectSwatch, updateStep } from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { type Channel, CHANNEL_CONFIGS, type FullColorStep } from '../types'
 import { css, html } from './_utilities.js'
@@ -133,6 +133,9 @@ export class LchGraph extends HTMLElement {
 			$activeIndex.subscribe(() => {
 				this.updateGraph()
 			}),
+			$gamut.subscribe(() => {
+				this.updateGraph()
+			}),
 		)
 
 		// Handle resize
@@ -162,9 +165,10 @@ export class LchGraph extends HTMLElement {
 			<div class="graph-wrapper">
 				<div class="graph-title">${config.label}</div>
 				<svg viewBox="0 0 100 200" preserveAspectRatio="none">
+					<defs></defs>
 					<g class="grid"></g>
 					<g class="invalid-regions"></g>
-					<path class="value-line"></path>
+					<g class="value-line-group"></g>
 					<g class="points"></g>
 					<g class="labels"></g>
 				</svg>
@@ -219,18 +223,70 @@ export class LchGraph extends HTMLElement {
 		invalidGroup.innerHTML = ''
 		this.renderInvalidRegions(scale, plotW, plotH, PL, PT, config, invalidGroup)
 
-		// Value line path
-		let valueLine = this.svg.querySelector<SVGPathElement>('.value-line')
-		valueLine!.style.stroke = config.color
+		// Create gradient definitions for value line segments
+		let defs = this.svg.querySelector('defs')
+		if (!defs) {
+			defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs')
+			this.svg.insertBefore(defs, this.svg.firstChild)
+		}
 
-		let pathData = scale
-			.map((step, index) => {
-				let x = PL + (index / (scale.length - 1)) * plotW
-				let y = PT + (1 - (step[this.channel] - config.min) / (config.max - config.min)) * plotH
-				return `${index === 0 ? 'M' : 'L'} ${String(x)} ${String(y)}`
-			})
-			.join(' ')
-		valueLine!.setAttribute('d', pathData)
+		defs.innerHTML = ''
+
+		// Create individual line segments with gradients
+		let valueLineGroup = this.svg.querySelector<SVGGElement>('.value-line-group')
+		if (!valueLineGroup) {
+			valueLineGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+			valueLineGroup.classList.add('value-line-group')
+			this.svg.insertBefore(valueLineGroup, invalidGroup)
+		}
+
+		valueLineGroup.innerHTML = ''
+
+		// Create segments between each pair of consecutive points
+		for (let index = 0; index < scale.length - 1; index++) {
+			let x1 = PL + (index / (scale.length - 1)) * plotW
+			let y1 =
+				PT + (1 - (scale[index][this.channel] - config.min) / (config.max - config.min)) * plotH
+			let x2 = PL + ((index + 1) / (scale.length - 1)) * plotW
+			let y2 =
+				PT + (1 - (scale[index + 1][this.channel] - config.min) / (config.max - config.min)) * plotH
+
+			let color1 = scale[index].hex
+			let color2 = scale[index + 1].hex
+			let gradientId = `gradient-${String(index)}`
+
+			// Create linear gradient
+			let gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient')
+			gradient.setAttribute('id', gradientId)
+			gradient.setAttribute('x1', String(x1))
+			gradient.setAttribute('y1', String(y1))
+			gradient.setAttribute('x2', String(x2))
+			gradient.setAttribute('y2', String(y2))
+
+			let stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop')
+			stop1.setAttribute('offset', '0%')
+			stop1.setAttribute('stop-color', color1)
+			gradient.append(stop1)
+
+			let stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop')
+			stop2.setAttribute('offset', '100%')
+			stop2.setAttribute('stop-color', color2)
+			gradient.append(stop2)
+
+			defs.append(gradient)
+
+			// Create line segment
+			let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+			line.setAttribute('x1', String(x1))
+			line.setAttribute('y1', String(y1))
+			line.setAttribute('x2', String(x2))
+			line.setAttribute('y2', String(y2))
+			line.setAttribute('stroke', `url(#${gradientId})`)
+			line.setAttribute('stroke-width', '2')
+			line.setAttribute('stroke-linecap', 'round')
+			line.setAttribute('stroke-linejoin', 'round')
+			valueLineGroup.append(line)
+		}
 
 		// Points
 		let pointsGroup = this.svg.querySelector('.points')!
@@ -303,12 +359,13 @@ export class LchGraph extends HTMLElement {
 		config: (typeof CHANNEL_CONFIGS)[Channel],
 		container: Element,
 	) {
+		let gamut = $gamut.get()
 		let stepsCount = scale.length
 		let barWidth = plotW / stepsCount
 
 		for (let [index, step] of scale.entries()) {
 			// Get valid ranges for this channel given the other two values
-			let validRanges = getValidRangesForChannel(this.channel, step, 'srgb')
+			let validRanges = getValidRangesForChannel(this.channel, step, gamut)
 
 			// Convert valid ranges to invalid ranges
 			let invalidRanges = this.invertRanges(validRanges, config.min, config.max)
