@@ -1,5 +1,5 @@
-import { hexToOklch } from '../lib/color.js'
-import { $activeFullColor, $activeIndex, updateActiveStep } from '../stores/scale.js'
+import { clampToValidRanges, getValidRangesForChannel, hexToOklch } from '../lib/color.js'
+import { $activeFullColor, $activeIndex, $gamut, updateActiveStep } from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { CHANNEL_CONFIGS } from '../types'
 import { css, html } from './_utilities.js'
@@ -62,41 +62,8 @@ const styles = css`
 		align-items: center;
 	}
 
-	input[type='range'] {
+	channel-slider {
 		flex: 1;
-		block-size: 6px;
-		cursor: pointer;
-		outline: none;
-		background: var(--surface-2);
-		border-radius: 3px;
-	}
-
-	input[type='range']::-webkit-slider-thumb {
-		inline-size: 16px;
-		block-size: 16px;
-		cursor: grab;
-		background: var(--accent);
-		border-radius: 50%;
-		box-shadow: var(--shadow-sm);
-		transition: transform 0.1s;
-	}
-
-	input[type='range']::-webkit-slider-thumb:hover {
-		transform: scale(1.1);
-	}
-
-	input[type='range']::-webkit-slider-thumb:active {
-		cursor: grabbing;
-	}
-
-	input[type='range']::-moz-range-thumb {
-		inline-size: 16px;
-		block-size: 16px;
-		cursor: grab;
-		background: var(--accent);
-		border: none;
-		border-radius: 50%;
-		box-shadow: var(--shadow-sm);
 	}
 
 	input[type='number'],
@@ -209,15 +176,10 @@ export class SwatchEditor extends HTMLElement {
 			title.textContent = `Edit ${String(color.stop)}`
 		}
 
-		// Update L/C/H inputs (skip if focused)
+		// Update L/C/H number inputs (skip if focused)
 		for (let channel of ['L', 'C', 'H'] as const) {
-			let rangeInput = shadow.querySelector<HTMLInputElement>(`#range-${channel}`)
 			let numberInput = shadow.querySelector<HTMLInputElement>(`#num-${channel}`)
 			let value = color[channel]
-
-			if (rangeInput && rangeInput !== activeElement) {
-				rangeInput.value = String(value)
-			}
 
 			if (numberInput && numberInput !== activeElement) {
 				numberInput.value = value.toFixed(channel === 'H' ? 1 : 3)
@@ -242,14 +204,7 @@ export class SwatchEditor extends HTMLElement {
 				<div class="field">
 					<label>Lightness (L)</label>
 					<div class="input-group">
-						<input
-							type="range"
-							id="range-L"
-							min="${String(L.min)}"
-							max="${String(L.max)}"
-							step="${String(L.step)}"
-							value="${String(color.L)}"
-						/>
+						<channel-slider channel="L"></channel-slider>
 						<input
 							type="number"
 							id="num-L"
@@ -263,14 +218,7 @@ export class SwatchEditor extends HTMLElement {
 				<div class="field">
 					<label>Chroma (C)</label>
 					<div class="input-group">
-						<input
-							type="range"
-							id="range-C"
-							min="${String(C.min)}"
-							max="${String(C.max)}"
-							step="${String(C.step)}"
-							value="${String(color.C)}"
-						/>
+						<channel-slider channel="C"></channel-slider>
 						<input
 							type="number"
 							id="num-C"
@@ -284,14 +232,7 @@ export class SwatchEditor extends HTMLElement {
 				<div class="field">
 					<label>Hue (H)</label>
 					<div class="input-group">
-						<input
-							type="range"
-							id="range-H"
-							min="${String(H.min)}"
-							max="${String(H.max)}"
-							step="${String(H.step)}"
-							value="${String(color.H)}"
-						/>
+						<channel-slider channel="H"></channel-slider>
 						<input
 							type="number"
 							id="num-H"
@@ -319,24 +260,33 @@ export class SwatchEditor extends HTMLElement {
 	private attachListeners() {
 		let { shadow } = this
 
-		// Range inputs
-		for (let channel of ['L', 'C', 'H']) {
-			let rangeInput = shadow.querySelector<HTMLInputElement>(`#range-${channel}`)
+		// Number inputs
+		for (let channel of ['L', 'C', 'H'] as const) {
 			let numberInput = shadow.querySelector<HTMLInputElement>(`#num-${channel}`)
-
-			if (!rangeInput || !numberInput) continue
-
-			rangeInput.addEventListener('input', () => {
-				let value = Number.parseFloat(rangeInput.value)
-				numberInput.value = value.toFixed(channel === 'H' ? 1 : 3)
-				updateActiveStep({ [channel]: value })
-			})
+			if (!numberInput) continue
 
 			numberInput.addEventListener('input', () => {
 				let value = Number.parseFloat(numberInput.value)
 				if (!Number.isNaN(value)) {
-					rangeInput.value = String(value)
 					updateActiveStep({ [channel]: value })
+				}
+			})
+
+			numberInput.addEventListener('blur', () => {
+				let parsed = Number.parseFloat(numberInput.value)
+				let currentColor = $activeFullColor.get()
+				if (!currentColor) return
+
+				if (Number.isNaN(parsed)) {
+					numberInput.value = currentColor[channel].toFixed(channel === 'H' ? 1 : 3)
+					return
+				}
+
+				let validRanges = getValidRangesForChannel(channel, currentColor, $gamut.get())
+				let clamped = clampToValidRanges(parsed, validRanges)
+				if (clamped !== parsed) {
+					updateActiveStep({ [channel]: clamped })
+					numberInput.value = clamped.toFixed(channel === 'H' ? 1 : 3)
 				}
 			})
 		}

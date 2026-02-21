@@ -228,3 +228,31 @@ export function getValidRangesForChannel(
 	if (channel === 'C') return getValidChromaRanges(step.L, step.H, space)
 	return getValidHueRanges(step.L, step.C, space)
 }
+
+/**
+ * Snaps a value to the nearest boundary within the union of valid ranges.
+ * If the value already falls within a valid range, it is returned unchanged.
+ * If validRanges is empty, the value is returned unchanged.
+ */
+export function clampToValidRanges(value: number, validRanges: ValueRange[]): number {
+	if (validRanges.length === 0) return value
+
+	for (let [start, end] of validRanges) {
+		if (start <= value && value <= end) return value
+	}
+
+	let nearest = validRanges[0][0]
+	let nearestDistance = Math.abs(value - nearest)
+
+	for (let [start, end] of validRanges) {
+		for (let boundary of [start, end]) {
+			let distance = Math.abs(value - boundary)
+			if (distance < nearestDistance) {
+				nearestDistance = distance
+				nearest = boundary
+			}
+		}
+	}
+
+	return nearest
+}
