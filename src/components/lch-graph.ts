@@ -32,7 +32,6 @@ const styles = css`
 		inline-size: 100%;
 		block-size: 200px;
 		overflow: visible;
-		cursor: crosshair;
 	}
 
 	.grid-line {
@@ -204,20 +203,6 @@ export class LchGraph extends HTMLElement {
 		// Update viewBox to match actual width
 		this.svg.setAttribute('viewBox', `0 0 ${String(W)} ${String(H)}`)
 
-		// Grid lines
-		let gridGroup = this.svg.querySelector('.grid')!
-		gridGroup.innerHTML = ''
-		for (let index = 0; index <= 4; index++) {
-			let y = PT + (index / 4) * plotH
-			let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-			line.setAttribute('x1', String(PL))
-			line.setAttribute('y1', String(y))
-			line.setAttribute('x2', String(W - PR))
-			line.setAttribute('y2', String(y))
-			line.classList.add('grid-line')
-			gridGroup.append(line)
-		}
-
 		// Invalid regions (bars for each step)
 		let invalidGroup = this.svg.querySelector('.invalid-regions')!
 		invalidGroup.innerHTML = ''
@@ -244,10 +229,10 @@ export class LchGraph extends HTMLElement {
 
 		// Create segments between each pair of consecutive points
 		for (let index = 0; index < scale.length - 1; index++) {
-			let x1 = PL + (index / (scale.length - 1)) * plotW
+			let x1 = PL + ((index + 0.5) / scale.length) * plotW
 			let y1 =
 				PT + (1 - (scale[index][this.channel] - config.min) / (config.max - config.min)) * plotH
-			let x2 = PL + ((index + 1) / (scale.length - 1)) * plotW
+			let x2 = PL + ((index + 1.5) / scale.length) * plotW
 			let y2 =
 				PT + (1 - (scale[index + 1][this.channel] - config.min) / (config.max - config.min)) * plotH
 
@@ -293,7 +278,7 @@ export class LchGraph extends HTMLElement {
 		pointsGroup.innerHTML = ''
 
 		for (let [index, step] of scale.entries()) {
-			let x = PL + (index / (scale.length - 1)) * plotW
+			let x = PL + ((index + 0.5) / scale.length) * plotW
 			let value = step[this.channel]
 			let y = PT + (1 - (value - config.min) / (config.max - config.min)) * plotH
 			let isActive = index === activeIndex
@@ -336,7 +321,7 @@ export class LchGraph extends HTMLElement {
 		labelsGroup.innerHTML = ''
 
 		for (let [index, step] of scale.entries()) {
-			let x = PL + (index / (scale.length - 1)) * plotW
+			let x = PL + ((index + 0.5) / scale.length) * plotW
 			let value = step[this.channel]
 			let isActive = index === activeIndex
 
@@ -370,10 +355,9 @@ export class LchGraph extends HTMLElement {
 			// Convert valid ranges to invalid ranges
 			let invalidRanges = this.invertRanges(validRanges, config.min, config.max)
 
-			// Calculate bar position (centered on point)
-			let xCenter = PL + (index / (stepsCount - 1)) * plotW
-			let xStart = index === 0 ? PL : xCenter - barWidth / 2
-			let xEnd = index === stepsCount - 1 ? PL + plotW : xCenter + barWidth / 2
+			// Calculate bar position (centered on point in equal-width columns)
+			let xStart = PL + (index / stepsCount) * plotW
+			let xEnd = PL + ((index + 1) / stepsCount) * plotW
 			let width = xEnd - xStart
 
 			// Draw a rect for each invalid range
@@ -440,7 +424,7 @@ export class LchGraph extends HTMLElement {
 		let plotH = H - PT - PB
 
 		for (let index = 0; index < scale.length; index++) {
-			let px = PL + (index / (scale.length - 1)) * plotW
+			let px = PL + ((index + 0.5) / scale.length) * plotW
 			let value = scale[index][this.channel]
 			let py = PT + (1 - (value - config.min) / (config.max - config.min)) * plotH
 
