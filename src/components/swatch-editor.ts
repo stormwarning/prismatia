@@ -1,5 +1,5 @@
 import { hexToOklch } from '../lib/color.js'
-import { $activeFullColor, $activeIndex, selectSwatch, updateActiveStep } from '../stores/scale.js'
+import { $activeFullColor, $activeIndex, updateActiveStep } from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { CHANNEL_CONFIGS } from '../types'
 import { css, html } from './_utilities.js'
