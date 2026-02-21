@@ -10,15 +10,10 @@ const styles = css`
 	}
 
 	.editor {
-		display: none;
 		padding: var(--space-lg);
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
-	}
-
-	.editor.active {
-		display: block;
 	}
 
 	.editor-header {
@@ -32,20 +27,6 @@ const styles = css`
 		font-family: var(--font-mono);
 		font-size: 14px;
 		font-weight: 600;
-	}
-
-	.close-btn {
-		padding: var(--space-xs);
-		font-size: 20px;
-		line-height: 1;
-		color: var(--text-muted);
-		background: none;
-		border: none;
-		transition: color 0.1s;
-	}
-
-	.close-btn:hover {
-		color: var(--text);
 	}
 
 	.editor-grid {
@@ -199,13 +180,12 @@ export class SwatchEditor extends HTMLElement {
 
 	private render() {
 		let color = $activeFullColor.get()
-		let isActive = $activeIndex.get() !== undefined
 
 		this.shadow.innerHTML = html`
 			<style>
 				${styles}
 			</style>
-			<div class="editor ${isActive ? 'active' : ''}">
+			<div class="editor">
 				${color ? this.renderEditor(color) : ''}
 			</div>
 		`
@@ -257,9 +237,6 @@ export class SwatchEditor extends HTMLElement {
 		return html`
 			<div class="editor-header">
 				<span class="editor-title">Edit ${String(color.stop)}</span>
-				<button class="close-btn" aria-label="Close editor">
-					&times;
-				</button>
 			</div>
 			<div class="editor-grid">
 				<div class="field">
@@ -341,11 +318,6 @@ export class SwatchEditor extends HTMLElement {
 
 	private attachListeners() {
 		let { shadow } = this
-
-		// Close button
-		shadow.querySelector('.close-btn')?.addEventListener('click', () => {
-			selectSwatch()
-		})
 
 		// Range inputs
 		for (let channel of ['L', 'C', 'H']) {

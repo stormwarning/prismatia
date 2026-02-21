@@ -29,8 +29,8 @@ export const $scale: WritableAtom<ColorStep[]> = persistentAtom<ColorStep[]>(
 	},
 )
 
-/** Currently selected swatch index (undefined = none selected) */
-export const $activeIndex = atom<number | undefined>()
+/** Currently selected swatch index (defaults to 500-level swatch at index 5) */
+export const $activeIndex = atom<number | undefined>(5)
 
 /** Computed full scale with hex values and contrast ratios */
 export const $fullScale = computed(
