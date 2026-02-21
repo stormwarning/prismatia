@@ -32,6 +32,12 @@ export const $scale: WritableAtom<ColorStep[]> = persistentAtom<ColorStep[]>(
 /** Currently selected swatch index (defaults to 500-level swatch at index 5) */
 export const $activeIndex = atom<number | undefined>(5)
 
+/** Selected color gamut for graph constraints (persisted to localStorage) */
+export const $gamut = persistentAtom<'srgb' | 'p3'>('prismatia:gamut', 'srgb', {
+	encode: JSON.stringify,
+	decode: JSON.parse,
+})
+
 /** Computed full scale with hex values and contrast ratios */
 export const $fullScale = computed(
 	$scale,
@@ -59,6 +65,11 @@ export const $activeFullColor = computed([$fullScale, $activeIndex], (scale, ind
 /** Select a swatch by index */
 export function selectSwatch(index?: number): void {
 	$activeIndex.set(index)
+}
+
+/** Set the color gamut for graph constraints */
+export function setGamut(gamut: 'srgb' | 'p3'): void {
+	$gamut.set(gamut)
 }
 
 /** Update a single color step */

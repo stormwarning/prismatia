@@ -1,4 +1,11 @@
-import { exportAsCSS, exportAsJSON, globalNudge, resetScale } from '../stores/scale.js'
+import {
+	$gamut,
+	exportAsCSS,
+	exportAsJSON,
+	globalNudge,
+	resetScale,
+	setGamut,
+} from '../stores/scale.js'
 import type { Channel } from '../types'
 import { css, html } from './_utilities.js'
 
@@ -32,6 +39,27 @@ const styles = css`
 		display: flex;
 		gap: var(--space-sm);
 		align-items: center;
+	}
+
+	.gamut-select {
+		padding: 6px 12px;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--text);
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		transition: all 0.12s;
+	}
+
+	.gamut-select:hover {
+		background: rgb(255 255 255 / 8%);
+		border-color: var(--border-2);
+	}
+
+	.gamut-select:focus {
+		outline: 1px solid var(--border-focus);
+		outline-offset: -1px;
 	}
 
 	.nudge-label {
@@ -103,6 +131,7 @@ const styles = css`
 
 export class AppHeader extends HTMLElement {
 	private shadow: ShadowRoot
+	private unsubscribers: Array<() => void> = []
 
 	constructor() {
 		super()
@@ -112,9 +141,24 @@ export class AppHeader extends HTMLElement {
 	connectedCallback() {
 		this.render()
 		this.attachListeners()
+
+		// Subscribe to gamut changes to re-render
+		this.unsubscribers.push(
+			$gamut.subscribe(() => {
+				this.render()
+				this.attachListeners()
+			}),
+		)
+	}
+
+	disconnectedCallback() {
+		for (let unsub of this.unsubscribers) unsub()
+		this.unsubscribers = []
 	}
 
 	private render() {
+		let currentGamut = $gamut.get()
+
 		this.shadow.innerHTML = html`
 			<style>
 				${styles}
@@ -122,6 +166,10 @@ export class AppHeader extends HTMLElement {
 			<header class="header">
 				<h1 class="title">Prismatia</h1>
 				<div class="controls">
+					<select class="gamut-select" id="gamut-select">
+						<option value="srgb" ${currentGamut === 'srgb' ? 'selected' : ''}>sRGB</option>
+						<option value="p3" ${currentGamut === 'p3' ? 'selected' : ''}>Display P3</option>
+					</select>
 					<div class="nudge-group">
 						<span class="nudge-label">Nudge All</span>
 						<div class="nudge-buttons">
@@ -190,6 +238,12 @@ export class AppHeader extends HTMLElement {
 	}
 
 	private attachListeners() {
+		// Gamut select
+		this.shadow.querySelector('#gamut-select')?.addEventListener('change', (event) => {
+			let select = event.target as HTMLSelectElement
+			setGamut(select.value as 'srgb' | 'p3')
+		})
+
 		// Nudge buttons
 		for (let button of this.shadow.querySelectorAll<HTMLButtonElement>('.nudge-btn')) {
 			button.addEventListener('click', () => {
