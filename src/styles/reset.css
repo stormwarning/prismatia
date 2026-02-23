@@ -10,8 +10,8 @@
 		min-block-size: 100vb;
 		font-family: "IBM Plex Sans", system-ui, sans-serif;
 		line-height: 1.5;
-		color: var(--text);
-		background: var(--bg);
+		color: var(--ui-foreground);
+		background: var(--ui-background);
 		-webkit-font-smoothing: antialiased;
 	}
 
