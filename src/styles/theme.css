@@ -13,6 +13,9 @@
 	--ui-foreground: var(--grey-050);
 	--ui-background: var(--grey-950);
 
+	/* Type styles. */
+	--text-family-mono: "Iosevka Aile", ui-monospace, "SFMono-Regular", monospace;
+
 	@media (prefers-color-scheme: dark) {
 		--grey-050: #090e11;
 		--grey-100: #0d1418;

@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap");
 
+@font-face {
+	font-family: "Iosevka Aile";
+	font-style: normal;
+	font-weight: 400;
+	src: url("/public/iosevka-regular.woff2") format("woff2");
+	font-display: swap;
+}
+
 @layer reset {
 	html {
 		color-scheme: dark;
@@ -8,7 +16,7 @@
 
 	body {
 		min-block-size: 100vb;
-		font-family: "IBM Plex Sans", system-ui, sans-serif;
+		font-family: "Iosevka Aile", "IBM Plex Sans", system-ui, sans-serif;
 		line-height: 1.5;
 		color: var(--ui-foreground);
 		background: var(--ui-background);
