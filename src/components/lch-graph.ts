@@ -40,7 +40,7 @@ const styles = css`
 	}
 
 	.invalid-region {
-		fill: rgb(255 255 255 / 4%);
+		fill: rgb(255 255 255 / 8%);
 	}
 
 	.value-line {

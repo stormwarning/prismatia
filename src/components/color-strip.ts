@@ -31,7 +31,8 @@ const styles = css`
 
 	.strip {
 		display: flex;
-		block-size: 72px;
+		gap: 1px;
+		block-size: 40px;
 		overflow: hidden;
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
@@ -49,27 +50,17 @@ const styles = css`
 		cursor: pointer;
 		background: none;
 		border: none;
+		border-radius: 6px;
 		transition: transform 0.12s ease-out;
 	}
 
 	.swatch:hover {
 		z-index: 1;
-		transform: scaleY(1.08);
 	}
 
 	.swatch:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: -2px;
-	}
-
-	.swatch.active::before {
-		position: absolute;
-		inset-block-start: 0;
-		inset-inline: 0;
-		block-size: 3px;
-		content: '';
-		background: #fff;
-		box-shadow: 0 1px 4px rgb(0 0 0 / 50%);
 	}
 
 	.swatch.out-of-gamut::after {
@@ -94,15 +85,12 @@ const styles = css`
 		font-size: 12px;
 		font-weight: 600;
 		letter-spacing: 0.02em;
-		text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
 	}
 
 	.contrast-level {
-		font-family: var(--font-mono);
-		font-size: 9px;
-		font-weight: 500;
-		letter-spacing: 0.04em;
-		opacity: 0.8;
+		font-family: var(--text-family-mono);
+		font-size: 12px;
+		font-weight: 400;
 	}
 `
 
@@ -177,7 +165,7 @@ export class ColorStrip extends HTMLElement {
 				aria-label="Select color ${String(step.stop)}"
 				aria-pressed="${String(active)}"
 			>
-				<span class="contrast-score">${ratio.toFixed(1)}</span>
+				<!--<span class="contrast-score">${ratio.toFixed(1)}</span>-->
 				<span class="contrast-level">${level}</span>
 			</button>
 		`

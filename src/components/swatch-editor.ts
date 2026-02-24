@@ -31,7 +31,6 @@ const styles = css`
 
 	.editor-grid {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
 		gap: var(--space-md);
 	}
 
