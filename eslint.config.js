@@ -18,6 +18,9 @@ const config = defineConfig([
 		files: ['**/*.ts'],
 		rules: {
 			/** @todo [@zazen/eslint-config@>7.4.1] Disable this rule upstream. */
+			'capitalized-comments': 'off',
+
+			/** @todo [@zazen/eslint-config@>7.4.1] Disable this rule upstream. */
 			'@stylistic/curly-newline': 'off',
 		},
 	},
