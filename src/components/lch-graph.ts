@@ -346,7 +346,7 @@ export class LchGraph extends HTMLElement {
 	) {
 		let gamut = $gamut.get()
 		let stepsCount = scale.length
-		let barWidth = plotW / stepsCount
+		// let barWidth = plotW / stepsCount
 
 		for (let [index, step] of scale.entries()) {
 			// Get valid ranges for this channel given the other two values
