@@ -4,7 +4,7 @@
 	font-family: "Iosevka Aile";
 	font-style: normal;
 	font-weight: 400;
-	src: url("/public/iosevka-regular.woff2") format("woff2");
+	src: url("/iosevka-regular.woff2") format("woff2");
 	font-display: swap;
 }
 
