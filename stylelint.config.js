@@ -7,6 +7,10 @@ const config = {
 	},
 	overrides: [
 		{
+			files: ['**/*.html'],
+			customSyntax: 'postcss-html',
+		},
+		{
 			files: ['**/*.ts'],
 			customSyntax: 'postcss-lit',
 		},
