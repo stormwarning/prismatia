@@ -30,3 +30,9 @@
 		--grey-950: #f7f7f9;
 	}
 }
+
+@property --hue {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 310;
+}

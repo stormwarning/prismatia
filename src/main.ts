@@ -1,6 +1,7 @@
 import './styles/reset.css'
 import './styles/theme.css'
 // Register web components
+import './components/prismatia-logo.js'
 import './components/global-controls.js'
 import './components/channel-slider.js'
 import './components/color-strip.js'
