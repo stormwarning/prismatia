@@ -1,7 +1,7 @@
 import './styles/reset.css'
 import './styles/theme.css'
 // Register web components
-import './components/app-header.js'
+import './components/global-controls.js'
 import './components/channel-slider.js'
 import './components/color-strip.js'
 import './components/swatch-editor.js'

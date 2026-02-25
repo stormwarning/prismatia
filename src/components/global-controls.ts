@@ -6,7 +6,7 @@ import {
 	resetScale,
 	setGamut,
 } from '../stores/scale.js'
-import type { Channel } from '../types'
+import type { Channel } from '../types/index.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -115,7 +115,7 @@ const styles = css`
 	}
 `
 
-export class AppHeader extends HTMLElement {
+export class GlobalControls extends HTMLElement {
 	private shadow: ShadowRoot
 	private unsubscribers: Array<() => void> = []
 
@@ -291,4 +291,4 @@ export class AppHeader extends HTMLElement {
 	}
 }
 
-customElements.define('app-header', AppHeader)
+customElements.define('global-controls', GlobalControls)
