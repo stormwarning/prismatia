@@ -1,7 +1,7 @@
 /** @type {import('stylelint').Config} */
 const config = {
 	extends: ['@zazen/stylelint-config'],
-	ignoreFiles: ['**/dist'],
+	ignoreFiles: ['**/dist/**/*.css'],
 	rules: {
 		/* … */
 	},
