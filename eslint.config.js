@@ -27,7 +27,7 @@ const config = defineConfig([
 
 	{
 		name: 'project/rules/components',
-		files: ['**/components/*.ts'],
+		files: ['**/components/**/*.ts'],
 		languageOptions: {
 			globals: {
 				...globals.browser,
