@@ -31,6 +31,8 @@ export interface DrawerOptions {
 	defaultSnapIndex?: number
 	/** Minimum drag displacement (px) before a non-fast swipe can dismiss */
 	dismissThreshold?: number
+	/** Whether the drawer is modal (blocks interaction with the rest of the page) */
+	modal?: boolean
 	/** Called when the drawer closes */
 	onClose?: () => void
 	/** Called when open state changes */
@@ -44,7 +46,7 @@ export interface DrawerOptions {
 
 export class Drawer extends HTMLElement {
 	// ── Shadow DOM elements ──
-	private backdrop!: HTMLDivElement
+	private dialog!: HTMLDialogElement
 	private popup!: HTMLDivElement
 	private handleArea!: HTMLDivElement
 	private contentEl!: HTMLDivElement
@@ -52,6 +54,7 @@ export class Drawer extends HTMLElement {
 	private gesture: GestureTracker | undefined = undefined
 	// ── State ──
 	private _open = false
+	private _modal = false
 	private _snapPoints: SnapPointInput[] = []
 	private _resolvedSnaps: ResolvedSnapPoint[] = []
 	private _activeSnapIndex = 0
@@ -84,13 +87,12 @@ export class Drawer extends HTMLElement {
 		let style = document.createElement('style')
 		style.textContent = DRAWER_STYLES
 
-		this.backdrop = document.createElement('div')
-		this.backdrop.className = 'backdrop'
+		this.dialog = document.createElement('dialog')
+		// this.dialog.setAttribute('role', 'dialog')
+		// this.dialog.setAttribute('aria-modal', 'true')
 
 		this.popup = document.createElement('div')
 		this.popup.className = 'popup'
-		this.popup.setAttribute('role', 'dialog')
-		this.popup.setAttribute('aria-modal', 'true')
 
 		this.handleArea = document.createElement('div')
 		this.handleArea.className = 'handle-area'
@@ -106,15 +108,16 @@ export class Drawer extends HTMLElement {
 		this.popup.append(this.handleArea)
 		this.popup.append(this.contentEl)
 
+		this.dialog.append(this.popup)
+
 		shadow.append(style)
-		shadow.append(this.backdrop)
-		shadow.append(this.popup)
+		shadow.append(this.dialog)
 	}
 
 	// ── Lifecycle ──
 
 	connectedCallback(): void {
-		this.backdrop.addEventListener('click', this._onBackdropClick)
+		this.dialog.addEventListener('cancel', this._onDialogCancel)
 		this.addEventListener('keydown', this._onKeyDown)
 
 		// Observe popup height for snap point resolution
@@ -127,7 +130,7 @@ export class Drawer extends HTMLElement {
 	}
 
 	disconnectedCallback(): void {
-		this.backdrop.removeEventListener('click', this._onBackdropClick)
+		this.dialog.removeEventListener('cancel', this._onDialogCancel)
 		this.removeEventListener('keydown', this._onKeyDown)
 		this.gesture?.destroy()
 		this.gesture = undefined
@@ -160,6 +163,7 @@ export class Drawer extends HTMLElement {
 		if (options.defaultSnapIndex !== undefined) this._activeSnapIndex = options.defaultSnapIndex
 		if (options.sequential !== undefined) this._sequential = options.sequential
 		if (options.dismissThreshold !== undefined) this._dismissThreshold = options.dismissThreshold
+		if (options.modal !== undefined) this._modal = options.modal
 		if (options.onClose) this.onClose = options.onClose
 		if (options.onSnapChange) this.onSnapChange = options.onSnapChange
 		if (options.onOpenChange) this.onOpenChange = options.onOpenChange
@@ -213,6 +217,14 @@ export class Drawer extends HTMLElement {
 		}
 
 		this.setAttribute('open', '')
+
+		// Use showModal for modal drawers, show for non-modal
+		if (this._modal) {
+			this.dialog.showModal()
+		} else {
+			this.dialog.show()
+		}
+
 		this._applySnapOffset()
 		this._updateBackdropOpacity()
 		this.onOpenChange?.(true)
@@ -225,11 +237,14 @@ export class Drawer extends HTMLElement {
 		this._open = false
 		this.removeAttribute('open')
 
+		// Close the dialog
+		this.dialog.close()
+
 		// Reset CSS vars
 		this.popup.style.setProperty('--drawer-offset-y', '0px')
 		this.popup.style.setProperty('--drawer-swipe-y', '0px')
 		this.popup.style.setProperty('--drawer-swipe-strength', '0.6')
-		this.backdrop.style.setProperty('--drawer-backdrop-opacity', '0')
+		this.style.setProperty('--drawer-backdrop-opacity', '0')
 
 		this.onClose?.()
 		this.onOpenChange?.(false)
@@ -266,7 +281,7 @@ export class Drawer extends HTMLElement {
 
 	private _updateBackdropOpacity(): void {
 		if (!this._open) {
-			this.backdrop.style.setProperty('--drawer-backdrop-opacity', '0')
+			this.dialog.style.setProperty('--drawer-backdrop-opacity', '0')
 			return
 		}
 
@@ -274,14 +289,14 @@ export class Drawer extends HTMLElement {
 		let snap = this._resolvedSnaps[this._activeSnapIndex]
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (!snap || this._popupHeight <= 0) {
-			this.backdrop.style.setProperty('--drawer-backdrop-opacity', '0.5')
+			this.dialog.style.setProperty('--drawer-backdrop-opacity', '0.5')
 			return
 		}
 
 		// opacity = visible_height / popup_height, clamped [0, 0.5]
 		let visibleFraction = (this._popupHeight - snap.offset) / this._popupHeight
 		let opacity = Math.min(0.5, Math.max(0, visibleFraction * 0.5))
-		this.backdrop.style.setProperty('--drawer-backdrop-opacity', String(opacity))
+		this.dialog.style.setProperty('--drawer-backdrop-opacity', String(opacity))
 	}
 
 	// ── Internal: gesture handling ──
@@ -340,7 +355,7 @@ export class Drawer extends HTMLElement {
 				let effectiveOffset = Math.max(0, this._snapStartOffset + dy)
 				let visibleHeight = this._popupHeight - effectiveOffset
 				let fraction = Math.max(0, visibleHeight / this._popupHeight)
-				this.backdrop.style.setProperty(
+				this.dialog.style.setProperty(
 					'--drawer-backdrop-opacity',
 					String(Math.min(0.5, fraction * 0.5)),
 				)
@@ -475,7 +490,7 @@ export class Drawer extends HTMLElement {
 
 	// ── Event handlers ──
 
-	private _onBackdropClick = (): void => {
+	private _onDialogCancel = (): void => {
 		this.hide()
 	}
 	private _onKeyDown = (event: Event): void => {

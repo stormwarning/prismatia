@@ -33,20 +33,22 @@ export const DRAWER_STYLES = css`
 		display: contents;
 	}
 
-	.backdrop {
+	dialog {
+		all: revert;
 		position: fixed;
 		inset: 0;
 		z-index: 999;
-		pointer-events: none;
-		background: rgb(0 0 0 / var(--drawer-backdrop-opacity));
-		opacity: 0;
-		transition: opacity 300ms ease;
-		-webkit-tap-highlight-color: transparent;
+		inline-size: 100%;
+		block-size: 100%;
+		padding: 0;
+		background: transparent;
+		border: none;
 	}
 
-	:host([open]) .backdrop {
-		pointer-events: auto;
-		opacity: 1;
+	dialog::backdrop {
+		background: rgb(0 0 0 / var(--drawer-backdrop-opacity));
+		transition: background-color 300ms ease;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.popup {
@@ -71,7 +73,7 @@ export const DRAWER_STYLES = css`
 	}
 
 	/* When open and not swiping: translate to snap offset only */
-	:host([open]) .popup {
+	dialog[open] .popup {
 		transform: translateY(calc(var(--drawer-offset-y, 0px) + var(--drawer-swipe-y, 0px)));
 	}
 
