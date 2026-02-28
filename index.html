@@ -15,27 +15,32 @@
 	<body>
 		<div class="app">
 			<header class="header">
-				<div>
-					<prismatia-logo></prismatia-logo>
-					<h1 class="title">Prismatia</h1>
-				</div>
-				<global-controls></global-controls>
+				<prismatia-logo></prismatia-logo>
+				<h1 class="title">Prismatia</h1>
 			</header>
+
+			<section class="controls">
+				<global-controls></global-controls>
+			</section>
 
 			<section class="palette">
 				<color-strip></color-strip>
 			</section>
 
 			<section class="editor">
-				<swatch-editor></swatch-editor>
+				<div class="editor-contents">
+					<swatch-editor></swatch-editor>
 
-				<div class="graphs">
-					<lch-graph channel="L"></lch-graph>
-					<lch-graph channel="C"></lch-graph>
-					<lch-graph channel="H"></lch-graph>
+					<div class="graphs">
+						<lch-graph channel="L"></lch-graph>
+						<lch-graph channel="C"></lch-graph>
+						<lch-graph channel="H"></lch-graph>
+					</div>
 				</div>
 			</section>
-			<f-drawer id="drawer">This is the drawer component.</f-drawer>
+			<f-drawer id="drawer" modal="false" snap-points="0.25, 0.5"
+				>This is the drawer component.</f-drawer
+			>
 		</div>
 
 		<script type="module" src="/src/main.ts"></script>
@@ -45,20 +50,20 @@
 				display: grid;
 				grid-template-areas:
 					'header header'
+					'controls controls'
 					'palette editor';
 				grid-template-rows: minmax(auto, max-content);
-				grid-template-columns: 2fr 1fr;
-				min-block-size: 100vb;
+				grid-template-columns: 1fr 40dvi;
+				block-size: 100vb;
 			}
 
 			.header {
 				display: flex;
 				flex-wrap: wrap;
 				grid-area: header;
-				gap: var(--space-lg);
+				gap: var(--space-sm);
 				align-items: center;
-				justify-content: space-between;
-				padding: 16px;
+				padding: var(--space-md);
 			}
 
 			.title {
@@ -67,6 +72,34 @@
 				font-size: 20px;
 				font-weight: 600;
 				letter-spacing: -0.02em;
+			}
+
+			.controls {
+				display: flex;
+				grid-area: controls;
+				justify-content: flex-end;
+				border-color: var(--grey-400);
+			}
+
+			.palette {
+				grid-area: palette;
+				padding: var(--space-lg);
+			}
+
+			.editor {
+				position: sticky;
+				grid-area: editor;
+				margin: var(--space-sm);
+				overflow-block: auto;
+				border-radius: var(--radius-md);
+			}
+
+			.editor-contents {
+				display: grid;
+				gap: var(--space-md);
+				padding: var(--space-md);
+				background-color: var(--ui-bg-secondary);
+				border-radius: var(--radius-md);
 			}
 		</style>
 	</body>

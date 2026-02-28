@@ -10,7 +10,6 @@ const styles = css`
 	}
 
 	.editor {
-		padding: var(--space-lg);
 		background: var(--surface);
 		border: 1px solid var(--border);
 		border-radius: var(--radius-lg);
@@ -24,7 +23,7 @@ const styles = css`
 	}
 
 	.editor-title {
-		font-family: var(--font-mono);
+		font-family: var(--text-family-mono);
 		font-size: 14px;
 		font-weight: 600;
 	}
@@ -43,7 +42,7 @@ const styles = css`
 	.field {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-sm);
+		gap: var(--space-xs);
 	}
 
 	.field label {

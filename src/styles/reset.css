@@ -10,7 +10,7 @@
 
 @layer reset {
 	html {
-		color-scheme: dark;
+		color-scheme: light dark;
 		hanging-punctuation: first allow-end last;
 	}
 
@@ -19,7 +19,7 @@
 		font-family: "Iosevka Aile", "IBM Plex Sans", system-ui, sans-serif;
 		line-height: 1.5;
 		color: var(--ui-foreground);
-		background: var(--ui-background);
+		background: var(--ui-bg-primary);
 		-webkit-font-smoothing: antialiased;
 	}
 

@@ -10,11 +10,27 @@
 	--grey-800: #19252e;
 	--grey-900: #10181d;
 	--grey-950: #060810;
-	--ui-foreground: var(--grey-050);
-	--ui-background: var(--grey-950);
+	--ui-foreground: var(--grey-950);
+	--ui-bg-primary: var(--grey-050);
+	--ui-bg-secondary: var(--grey-200);
+	--ui-bg-tertiary: var(--grey-300);
+
+	/** Spacing. */
+	--space-xxs: 2px;
+	--space-xs: 4px;
+	--space-sm: 8px;
+	--space-md: 16px;
+	--space-lg: 24px;
+	--space-xl: 32px;
+	--space-xxl: 48px;
 
 	/* Type styles. */
 	--text-family-mono: "Iosevka Aile", ui-monospace, "SFMono-Regular", monospace;
+
+	/** Radius. */
+	--radius-sm: 2px;
+	--radius-md: 4px;
+	--radius-round: 9999px;
 
 	@media (prefers-color-scheme: dark) {
 		--grey-050: #090e11;

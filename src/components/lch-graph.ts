@@ -11,10 +11,9 @@ const styles = css`
 	}
 
 	.graph-wrapper {
-		padding: var(--space-md);
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-lg);
+		/* background: var(--ui-bg-tertiary); */
+		/* border: 1px solid var(--grey-400); */
+		/* border-radius: var(--radius-lg); */
 	}
 
 	.graph-title {
@@ -83,7 +82,7 @@ const styles = css`
 	}
 
 	.value-label {
-		font-family: 'IBM Plex Mono', monospace;
+		font-family: var(--text-family-mono);
 		font-size: 10px;
 		text-anchor: middle;
 		fill: rgb(255 255 255 / 60%);

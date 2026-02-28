@@ -47,11 +47,31 @@ const styles = css`
 		align-items: center;
 		justify-content: center;
 		padding: 0;
+		overflow: clip;
 		cursor: pointer;
 		background: none;
 		border: none;
 		border-radius: 6px;
 		transition: transform 0.12s ease-out;
+	}
+
+	.swatch-background {
+		position: absolute;
+		inset: 0;
+		border-radius: 6px;
+		box-shadow: inset 0 0 0 1px color-mix(currentcolor, transparent 80%);
+		transform-origin: top center;
+		scale: 1 1;
+		transition: all 150ms ease-in;
+	}
+
+	.swatch.active {
+		.swatch-background {
+			border-end-end-radius: 12px;
+			/* stylelint-disable-next-line property-no-unknown */
+			corner-end-end-shape: bevel;
+			scale: 1 0.9;
+		}
 	}
 
 	.swatch:hover {
@@ -88,6 +108,7 @@ const styles = css`
 	}
 
 	.contrast-level {
+		position: relative;
 		font-family: var(--text-family-mono);
 		font-size: 12px;
 		font-weight: 400;
@@ -131,9 +152,9 @@ export class ColorStrip extends HTMLElement {
 				${styles}
 			</style>
 			<div class="strip-container">
-				<div class="labels">
+				<!--<div class="labels">
 					${scale.map((step) => `<span class="label">${String(step.stop)}</span>`).join('')}
-				</div>
+				</div>-->
 				<div class="strip">
 					${scale
 						.map((step, index) => this.renderSwatch(step, index, index === activeIndex))
@@ -160,11 +181,12 @@ export class ColorStrip extends HTMLElement {
 		return html`
 			<button
 				class="${classes}"
-				style="background: ${step.hex}; color: ${color}"
+				style="color: ${color}"
 				data-index="${String(index)}"
 				aria-label="Select color ${String(step.stop)}"
 				aria-pressed="${String(active)}"
 			>
+				<div class="swatch-background" style="background: ${step.hex};"></div>
 				<!--<span class="contrast-score">${ratio.toFixed(1)}</span>-->
 				<span class="contrast-level">${level}</span>
 			</button>

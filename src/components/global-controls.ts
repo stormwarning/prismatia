@@ -92,7 +92,7 @@ const styles = css`
 		font-family: var(--font-mono);
 		font-size: 12px;
 		font-weight: 500;
-		color: var(--text);
+		color: var(--ui-forground);
 		background: var(--surface-2);
 		border: 1px solid var(--border-2);
 		border-radius: var(--radius-md);
@@ -105,7 +105,6 @@ const styles = css`
 	}
 
 	.btn.primary {
-		color: #fff;
 		background: var(--accent);
 		border-color: var(--accent);
 	}
