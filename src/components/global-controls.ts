@@ -1,12 +1,4 @@
-import {
-	$gamut,
-	exportAsCSS,
-	exportAsJSON,
-	globalNudge,
-	resetScale,
-	setGamut,
-} from '../stores/scale.js'
-import type { Channel } from '../types/index.js'
+import { $gamut, exportAsCSS, exportAsJSON, resetScale, setGamut } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -46,40 +38,6 @@ const styles = css`
 	.gamut-select:focus {
 		outline: 1px solid var(--border-focus);
 		outline-offset: -1px;
-	}
-
-	.nudge-label {
-		font-family: var(--font-mono);
-		font-size: 11px;
-		color: var(--text-dim);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.nudge-buttons {
-		display: flex;
-		gap: 4px;
-	}
-
-	.nudge-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		inline-size: 32px;
-		block-size: 28px;
-		font-family: var(--font-mono);
-		font-size: 11px;
-		color: var(--text-muted);
-		background: var(--surface-2);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		transition: all 0.12s;
-	}
-
-	.nudge-btn:hover {
-		color: var(--text);
-		background: rgb(255 255 255 / 8%);
-		border-color: var(--border-2);
 	}
 
 	.actions {
@@ -153,59 +111,6 @@ export class GlobalControls extends HTMLElement {
 					<option value="srgb" ${currentGamut === 'srgb' ? 'selected' : ''}>sRGB</option>
 					<option value="p3" ${currentGamut === 'p3' ? 'selected' : ''}>Display P3</option>
 				</select>
-				<div class="nudge-group">
-					<span class="nudge-label">Nudge All</span>
-					<div class="nudge-buttons">
-						<button
-							class="nudge-btn"
-							data-channel="L"
-							data-delta="-0.05"
-							title="L -5%"
-						>
-							L−
-						</button>
-						<button
-							class="nudge-btn"
-							data-channel="L"
-							data-delta="0.05"
-							title="L +5%"
-						>
-							L+
-						</button>
-						<button
-							class="nudge-btn"
-							data-channel="C"
-							data-delta="-0.01"
-							title="C -0.01"
-						>
-							C−
-						</button>
-						<button
-							class="nudge-btn"
-							data-channel="C"
-							data-delta="0.01"
-							title="C +0.01"
-						>
-							C+
-						</button>
-						<button
-							class="nudge-btn"
-							data-channel="H"
-							data-delta="-5"
-							title="H -5°"
-						>
-							H−
-						</button>
-						<button
-							class="nudge-btn"
-							data-channel="H"
-							data-delta="5"
-							title="H +5°"
-						>
-							H+
-						</button>
-					</div>
-				</div>
 				<div class="actions">
 					<button class="btn" id="reset-btn">Reset</button>
 					<button class="btn" id="export-json-btn">
@@ -225,15 +130,6 @@ export class GlobalControls extends HTMLElement {
 			let select = event.target as HTMLSelectElement
 			setGamut(select.value as 'srgb' | 'p3')
 		})
-
-		// Nudge buttons
-		for (let button of this.shadow.querySelectorAll<HTMLButtonElement>('.nudge-btn')) {
-			button.addEventListener('click', () => {
-				let channel = button.dataset.channel as Channel
-				let delta = Number.parseFloat(button.dataset.delta ?? '0')
-				globalNudge(channel, delta)
-			})
-		}
 
 		// Reset
 		this.shadow.querySelector('#reset-btn')?.addEventListener('click', () => {

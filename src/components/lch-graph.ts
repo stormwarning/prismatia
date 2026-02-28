@@ -1,6 +1,13 @@
 /* eslint-disable yoda */
 import { getValidRangesForChannel, type ValueRange } from '../lib/color.js'
-import { $activeIndex, $fullScale, $gamut, selectSwatch, updateStep } from '../stores/scale.js'
+import {
+	$activeIndex,
+	$fullScale,
+	$gamut,
+	globalNudge,
+	selectSwatch,
+	updateStep,
+} from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
 import { type Channel, CHANNEL_CONFIGS, type FullColorStep } from '../types'
 import { css, html } from './_utilities.js'
@@ -12,6 +19,12 @@ const styles = css`
 
 	.graph-wrapper {
 		/* background: var(--ui-bg-tertiary); */
+	}
+
+	.graph-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	.graph-title {
@@ -90,6 +103,32 @@ const styles = css`
 		font-weight: 600;
 		fill: #fff;
 	}
+
+	.graph-actions {
+		display: flex;
+		gap: 4px;
+	}
+
+	.nudge-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 32px;
+		block-size: 28px;
+		font-family: var(--font-mono);
+		font-size: 11px;
+		color: var(--text-muted);
+		background: var(--surface-2);
+		border: 1px solid var(--border);
+		border-radius: var(--radius-sm);
+		transition: all 0.12s;
+	}
+
+	.nudge-btn:hover {
+		color: var(--text);
+		background: rgb(255 255 255 / 8%);
+		border-color: var(--border-2);
+	}
 `
 
 interface DragState {
@@ -159,7 +198,27 @@ export class LchGraph extends HTMLElement {
 				${styles}
 			</style>
 			<div class="graph-wrapper">
-				<div class="graph-title">${config.label}</div>
+				<div class="graph-heading">
+					<h4 class="graph-title">${config.label}</h4>
+					<div class="graph-actions">
+						${
+							this.channel === 'L'
+								? html`
+										<button class="nudge-btn" data-channel="L" data-delta="-0.05" title="L -5%">−</button>
+										<button class="nudge-btn" data-channel="L" data-delta="0.05" title="L +5%">+</button>
+									`
+								: this.channel === 'C'
+									? html`
+											<button class="nudge-btn" data-channel="C" data-delta="-0.01" title="C -0.01">−</button>
+											<button class="nudge-btn" data-channel="C" data-delta="0.01" title="C +0.01">+</button>
+										`
+									: html`
+											<button class="nudge-btn" data-channel="H" data-delta="-5" title="H -5°">−</button>
+											<button class="nudge-btn" data-channel="H" data-delta="5" title="H +5°">+</button>
+										`
+						}
+					</div>
+				</div>
 				<svg viewBox="0 0 100 200" preserveAspectRatio="none">
 					<defs></defs>
 					<g class="grid"></g>
@@ -178,6 +237,15 @@ export class LchGraph extends HTMLElement {
 		this.svg.addEventListener('pointermove', this.onPointerMove.bind(this))
 		this.svg.addEventListener('pointerup', this.onPointerUp.bind(this))
 		this.svg.addEventListener('pointerleave', this.onPointerUp.bind(this))
+
+		// Nudge buttons
+		for (let button of this.shadow.querySelectorAll<HTMLButtonElement>('.nudge-btn')) {
+			button.addEventListener('click', () => {
+				let channel = button.dataset.channel as Channel
+				let delta = Number.parseFloat(button.dataset.delta ?? '0')
+				globalNudge(channel, delta)
+			})
+		}
 
 		this.updateGraph()
 	}
