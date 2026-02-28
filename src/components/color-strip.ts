@@ -1,6 +1,6 @@
-import { getBestContrastColor, getContrastLevel } from '../lib/color.js'
-import { $activeIndex, $fullScale, selectSwatch } from '../stores/scale.js'
-import type { FullColorStep } from '../types'
+import './swatch-button.js'
+
+import { $fullScale } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -37,87 +37,12 @@ const styles = css`
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
 	}
-
-	.swatch {
-		position: relative;
-		display: flex;
-		flex: 1;
-		flex-direction: column;
-		gap: 2px;
-		align-items: center;
-		justify-content: center;
-		padding: 0;
-		overflow: clip;
-		cursor: pointer;
-		background: none;
-		border: none;
-		border-radius: 6px;
-		transition: transform 0.12s ease-out;
-	}
-
-	.swatch-background {
-		position: absolute;
-		inset: 0;
-		border-radius: 6px;
-		box-shadow: inset 0 0 0 1px color-mix(currentcolor, transparent 80%);
-		transform-origin: top center;
-		scale: 1 1;
-		transition: all 150ms ease-in;
-	}
-
-	.swatch.active {
-		.swatch-background {
-			border-end-end-radius: 12px;
-			/* stylelint-disable-next-line property-no-unknown */
-			corner-end-end-shape: bevel;
-			scale: 1 0.9;
-		}
-	}
-
-	.swatch:hover {
-		z-index: 1;
-	}
-
-	.swatch:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
-	}
-
-	.swatch.out-of-gamut::after {
-		position: absolute;
-		inset-block-start: 4px;
-		inset-inline-end: 4px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		inline-size: 14px;
-		block-size: 14px;
-		font-size: 9px;
-		font-weight: 700;
-		color: #fff;
-		content: '!';
-		background: var(--error);
-		border-radius: 50%;
-	}
-
-	.contrast-score {
-		font-family: var(--font-mono);
-		font-size: 12px;
-		font-weight: 600;
-		letter-spacing: 0.02em;
-	}
-
-	.contrast-level {
-		position: relative;
-		font-family: var(--text-family-mono);
-		font-size: 12px;
-		font-weight: 400;
-	}
 `
 
 export class ColorStrip extends HTMLElement {
 	private shadow: ShadowRoot
 	private unsubscribers: Array<() => void> = []
+	private swatchElements: Map<number, Element> = new Map()
 
 	constructor() {
 		super()
@@ -127,12 +52,9 @@ export class ColorStrip extends HTMLElement {
 	connectedCallback() {
 		this.render()
 
-		// Subscribe to store changes
+		// Subscribe to store changes - only re-render when scale changes
 		this.unsubscribers.push(
 			$fullScale.subscribe(() => {
-				this.render()
-			}),
-			$activeIndex.subscribe(() => {
 				this.render()
 			}),
 		)
@@ -145,7 +67,6 @@ export class ColorStrip extends HTMLElement {
 
 	private render() {
 		let scale = $fullScale.get()
-		let activeIndex = $activeIndex.get()
 
 		this.shadow.innerHTML = html`
 			<style>
@@ -156,41 +77,22 @@ export class ColorStrip extends HTMLElement {
 					${scale.map((step) => `<span class="label">${String(step.stop)}</span>`).join('')}
 				</div>-->
 				<div class="strip">
-					${scale
-						.map((step, index) => this.renderSwatch(step, index, index === activeIndex))
-						.join('')}
+					${scale.map((_, index) => `<swatch-button data-index="${String(index)}"></swatch-button>`).join('')}
 				</div>
 			</div>
 		`
 
-		// Add click handlers
-		for (let [index, element] of this.shadow.querySelectorAll('.swatch').entries()) {
-			element.addEventListener('click', () => {
-				selectSwatch(index)
-			})
+		// Update swatch components with data
+		this.swatchElements.clear()
+		for (let [index, step] of scale.entries()) {
+			let element = this.shadow.querySelector(`swatch-button[data-index="${String(index)}"]`)
+			if (element) {
+				/* @ts-expect-error This doesn't exist on Element? */
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+				element.setData(step, index)
+				this.swatchElements.set(index, element)
+			}
 		}
-	}
-
-	private renderSwatch(step: FullColorStep, index: number, active: boolean): string {
-		let { color, ratio } = getBestContrastColor(step.hex)
-		let level = getContrastLevel(ratio)
-		let classes = ['swatch', active ? 'active' : '', step.isInGamut ? '' : 'out-of-gamut']
-			.filter(Boolean)
-			.join(' ')
-
-		return html`
-			<button
-				class="${classes}"
-				style="color: ${color}"
-				data-index="${String(index)}"
-				aria-label="Select color ${String(step.stop)}"
-				aria-pressed="${String(active)}"
-			>
-				<div class="swatch-background" style="background: ${step.hex};"></div>
-				<!--<span class="contrast-score">${ratio.toFixed(1)}</span>-->
-				<span class="contrast-level">${level}</span>
-			</button>
-		`
 	}
 }
 

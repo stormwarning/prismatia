@@ -12,8 +12,6 @@ const styles = css`
 
 	.graph-wrapper {
 		/* background: var(--ui-bg-tertiary); */
-		/* border: 1px solid var(--grey-400); */
-		/* border-radius: var(--radius-lg); */
 	}
 
 	.graph-title {
