@@ -40,8 +40,26 @@ const styles = css`
 	.graph {
 		display: block;
 		inline-size: 100%;
-		block-size: 200px;
 		overflow: visible;
+	}
+
+	.graph-labels {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.value-label-text {
+		font-family: var(--text-family-mono);
+		font-size: 10px;
+		color: var(--ui-foreground);
+		text-align: center;
+		opacity: 0.54;
+	}
+
+	.value-label-text.active {
+		font-weight: 600;
+		color: var(--ui-foreground);
+		opacity: 1;
 	}
 
 	.grid-line {
@@ -50,7 +68,7 @@ const styles = css`
 	}
 
 	.invalid-region {
-		fill: rgb(255 255 255 / 8%);
+		fill: var(--grey-300);
 	}
 
 	.value-line {
@@ -144,7 +162,7 @@ export class LchGraph extends HTMLElement {
 	private dragState: DragState = { dragging: false, pointIndex: undefined }
 	private resizeObserver?: ResizeObserver
 	// Padding
-	private readonly PAD = { l: 20, r: 20, t: 10, b: 30 }
+	private readonly PAD = { l: 0, r: 0, t: 0, b: 0 }
 
 	static get observedAttributes() {
 		return ['channel']
@@ -233,8 +251,8 @@ export class LchGraph extends HTMLElement {
 					<g class="invalid-regions"></g>
 					<g class="value-line-group"></g>
 					<g class="points"></g>
-					<g class="labels"></g>
 				</svg>
+				<div class="graph-labels"></div>
 			</div>
 		`
 
@@ -390,21 +408,18 @@ export class LchGraph extends HTMLElement {
 		}
 
 		// Value labels
-		let labelsGroup = this.svg.querySelector('.labels')!
-		labelsGroup.innerHTML = ''
+		let labelsDiv = this.shadow.querySelector<HTMLDivElement>('.graph-labels')!
+		labelsDiv.innerHTML = ''
 
 		for (let [index, step] of scale.entries()) {
-			let x = PL + ((index + 0.5) / scale.length) * plotW
 			let value = step[this.channel]
 			let isActive = index === activeIndex
 
-			let text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
-			text.setAttribute('x', String(x))
-			text.setAttribute('y', String(H - 8))
-			text.classList.add('value-label')
-			if (isActive) text.classList.add('active')
-			text.textContent = config.format(value)
-			labelsGroup.append(text)
+			let label = document.createElement('div')
+			label.classList.add('value-label-text')
+			if (isActive) label.classList.add('active')
+			label.textContent = config.format(value)
+			labelsDiv.append(label)
 		}
 	}
 
