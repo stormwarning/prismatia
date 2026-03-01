@@ -28,7 +28,7 @@ const styles = css`
 	}
 
 	.graph-title {
-		margin-block-end: var(--space-md);
+		margin: 0;
 		font-family: var(--font-mono);
 		font-size: 11px;
 		font-weight: 600;
@@ -37,7 +37,7 @@ const styles = css`
 		letter-spacing: 0.08em;
 	}
 
-	svg {
+	.graph {
 		display: block;
 		inline-size: 100%;
 		block-size: 200px;
@@ -113,21 +113,22 @@ const styles = css`
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		inline-size: 32px;
-		block-size: 28px;
-		font-family: var(--font-mono);
-		font-size: 11px;
-		color: var(--text-muted);
-		background: var(--surface-2);
-		border: 1px solid var(--border);
+		inline-size: 24px;
+		block-size: 24px;
+		padding: var(--space-xxs);
+		background: transparent;
+		border: none;
 		border-radius: var(--radius-sm);
-		transition: all 0.12s;
+		transition: 150ms ease-in;
+		transition-property: background, scale;
 	}
 
 	.nudge-btn:hover {
-		color: var(--text);
-		background: rgb(255 255 255 / 8%);
-		border-color: var(--border-2);
+		background: var(--grey-300);
+	}
+
+	.nudge-btn:active {
+		scale: 0.95;
 	}
 `
 
@@ -190,6 +191,28 @@ export class LchGraph extends HTMLElement {
 		this.updateGraph()
 	}
 
+	private getNudgeButtonsHTML(): string {
+		let minusIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>`
+		let plusIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`
+
+		let nudgeConfigs: Record<Channel, { maxDelta: number; minDelta: number; title: string }> = {
+			L: { minDelta: -0.05, maxDelta: 0.05, title: 'L' },
+			C: { minDelta: -0.01, maxDelta: 0.01, title: 'C' },
+			H: { minDelta: -5, maxDelta: 5, title: 'H' },
+		}
+
+		let config = nudgeConfigs[this.channel]
+
+		return html`
+			<button class="nudge-btn" data-channel="${this.channel}" data-delta="${config.minDelta}" title="${config.title} ${config.minDelta}">
+				${minusIcon}
+			</button>
+			<button class="nudge-btn" data-channel="${this.channel}" data-delta="${config.maxDelta}" title="${config.title} ${config.maxDelta}">
+				${plusIcon}
+			</button>
+		`
+	}
+
 	private render() {
 		let config = CHANNEL_CONFIGS[this.channel]
 
@@ -201,25 +224,10 @@ export class LchGraph extends HTMLElement {
 				<div class="graph-heading">
 					<h4 class="graph-title">${config.label}</h4>
 					<div class="graph-actions">
-						${
-							this.channel === 'L'
-								? html`
-										<button class="nudge-btn" data-channel="L" data-delta="-0.05" title="L -5%">−</button>
-										<button class="nudge-btn" data-channel="L" data-delta="0.05" title="L +5%">+</button>
-									`
-								: this.channel === 'C'
-									? html`
-											<button class="nudge-btn" data-channel="C" data-delta="-0.01" title="C -0.01">−</button>
-											<button class="nudge-btn" data-channel="C" data-delta="0.01" title="C +0.01">+</button>
-										`
-									: html`
-											<button class="nudge-btn" data-channel="H" data-delta="-5" title="H -5°">−</button>
-											<button class="nudge-btn" data-channel="H" data-delta="5" title="H +5°">+</button>
-										`
-						}
+						${this.getNudgeButtonsHTML()}
 					</div>
 				</div>
-				<svg viewBox="0 0 100 200" preserveAspectRatio="none">
+				<svg class="graph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" preserveAspectRatio="none">
 					<defs></defs>
 					<g class="grid"></g>
 					<g class="invalid-regions"></g>
@@ -230,7 +238,7 @@ export class LchGraph extends HTMLElement {
 			</div>
 		`
 
-		this.svg = this.shadow.querySelector('svg')!
+		this.svg = this.shadow.querySelector('.graph')!
 
 		// Event listeners for dragging
 		this.svg.addEventListener('pointerdown', this.onPointerDown.bind(this))
@@ -239,7 +247,7 @@ export class LchGraph extends HTMLElement {
 		this.svg.addEventListener('pointerleave', this.onPointerUp.bind(this))
 
 		// Nudge buttons
-		for (let button of this.shadow.querySelectorAll<HTMLButtonElement>('.nudge-btn')) {
+		for (let button of this.shadow.querySelectorAll<HTMLButtonElement>('button.nudge-btn')) {
 			button.addEventListener('click', () => {
 				let channel = button.dataset.channel as Channel
 				let delta = Number.parseFloat(button.dataset.delta ?? '0')
