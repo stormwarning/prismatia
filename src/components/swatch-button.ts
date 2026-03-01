@@ -28,6 +28,7 @@ const styles = css`
 			z-index: 1;
 			content: '';
 			background-color: currentcolor;
+			border-radius: 6px;
 			opacity: 0;
 			transition: opacity 150ms ease-in;
 		}
