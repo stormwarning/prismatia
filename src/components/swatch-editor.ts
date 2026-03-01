@@ -33,11 +33,11 @@ const styles = css`
 		gap: var(--space-md);
 	}
 
-	@media (width <= 800px) {
+	/* @media (width <= 800px) {
 		.editor-grid {
 			grid-template-columns: repeat(2, 1fr);
 		}
-	}
+	} */
 
 	.field {
 		display: flex;
@@ -47,8 +47,8 @@ const styles = css`
 
 	.field label {
 		font-family: var(--font-mono);
-		font-size: 10px;
-		font-weight: 500;
+		font-size: 12px;
+		font-weight: 600;
 		color: var(--text-dim);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;

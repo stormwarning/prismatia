@@ -29,10 +29,8 @@ const styles = css`
 
 	.graph-title {
 		margin: 0;
-		font-family: var(--font-mono);
-		font-size: 11px;
+		font-size: 12px;
 		font-weight: 600;
-		color: var(--text-dim);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
 	}
