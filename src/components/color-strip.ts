@@ -33,7 +33,6 @@ const styles = css`
 		display: flex;
 		gap: 1px;
 		block-size: 40px;
-		overflow: hidden;
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
 	}

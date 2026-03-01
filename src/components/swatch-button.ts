@@ -17,12 +17,20 @@ const styles = css`
 		align-items: center;
 		justify-content: center;
 		padding: 0;
-		overflow: clip;
-		cursor: pointer;
 		background: none;
 		border: none;
 		border-radius: 6px;
 		transition: transform 0.12s ease-out;
+
+		&::before {
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+			content: '';
+			background-color: currentcolor;
+			opacity: 0;
+			transition: opacity 150ms ease-in;
+		}
 	}
 
 	.swatch-background {
@@ -46,11 +54,23 @@ const styles = css`
 
 	.swatch:hover {
 		z-index: 1;
+
+		&:not(.active)::before {
+			opacity: 0.2;
+		}
 	}
 
 	.swatch:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
+		z-index: 1;
+		outline: 0;
+
+		.swatch-background {
+			outline: 2px solid var(--grey-900);
+		}
+	}
+
+	.swatch:active {
+		scale: 0.95;
 	}
 
 	.swatch.out-of-gamut::after {
@@ -64,7 +84,7 @@ const styles = css`
 		block-size: 14px;
 		font-size: 9px;
 		font-weight: 700;
-		color: #fff;
+		color: currentcolor;
 		content: '!';
 		background: var(--error);
 		border-radius: 50%;

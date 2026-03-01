@@ -52,7 +52,7 @@
 					'header header'
 					'controls controls'
 					'palette editor';
-				grid-template-rows: minmax(auto, max-content);
+				grid-template-rows: auto auto 1fr;
 				grid-template-columns: 1fr 40dvi;
 				block-size: 100vb;
 			}
@@ -83,7 +83,7 @@
 
 			.palette {
 				grid-area: palette;
-				padding: var(--space-lg);
+				padding: var(--space-md);
 			}
 
 			.editor {
