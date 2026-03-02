@@ -91,6 +91,8 @@
 				grid-area: editor;
 				margin: var(--space-sm);
 				overflow-block: auto;
+				overscroll-behavior: none;
+				border: 1px solid var(--grey-200);
 				border-radius: var(--radius-md);
 			}
 
@@ -98,7 +100,7 @@
 				display: grid;
 				gap: var(--space-md);
 				padding: var(--space-md);
-				background-color: var(--ui-bg-secondary);
+				background-color: light-dark(#fff, var(--grey-100));
 				border-radius: var(--radius-md);
 			}
 		</style>

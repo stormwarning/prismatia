@@ -43,10 +43,10 @@ const styles = css`
 
 	.graph-labels {
 		display: flex;
-		justify-content: space-between;
 	}
 
 	.value-label-text {
+		flex: 1 1 auto;
 		font-family: var(--text-family-mono);
 		font-size: 10px;
 		color: var(--ui-foreground);
@@ -65,8 +65,15 @@ const styles = css`
 		stroke-width: 1;
 	}
 
+	.stop-rect {
+		fill: transparent;
+		stroke: var(--grey-200);
+	}
+
 	.invalid-region {
-		fill: var(--grey-300);
+		fill: var(--grey-100);
+		fill: url('#invalid-stripe-pattern');
+		stroke: var(--grey-200);
 	}
 
 	.value-line {
@@ -77,24 +84,33 @@ const styles = css`
 	}
 
 	.point-group {
-		cursor: grab;
-	}
-
-	.point-group:active {
-		cursor: grabbing;
+		cursor: ns-resize;
 	}
 
 	.point-bg {
-		fill: #13141a;
+		fill: transparent;
+		stroke: var(--grey-200);
+		stroke-width: 1.5px;
 	}
 
 	.point-color {
+		stroke: light-dark(#fff, var(--grey-100));
+		stroke-width: 1.5px;
 		transition: r 0.1s ease-out;
 	}
 
+	.point-group.active {
+		.point-bg {
+			r: 7.5px;
+		}
+
+		.point-color {
+			r: 6px;
+		}
+	}
+
 	.point-group:hover .point-color {
-		/* stylelint-disable-next-line declaration-property-value-no-unknown */
-		r: 7;
+		r: 7px;
 	}
 
 	.point-ring {
@@ -102,10 +118,6 @@ const styles = css`
 		fill: none;
 		stroke: #fff;
 		stroke-width: 2;
-	}
-
-	.point-group.active .point-ring {
-		opacity: 1;
 	}
 
 	.value-label {
@@ -246,6 +258,7 @@ export class LchGraph extends HTMLElement {
 				<svg class="graph" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" preserveAspectRatio="none">
 					<defs></defs>
 					<g class="grid"></g>
+					<g class="stop-rects"></g>
 					<g class="invalid-regions"></g>
 					<g class="value-line-group"></g>
 					<g class="points"></g>
@@ -284,7 +297,7 @@ export class LchGraph extends HTMLElement {
 
 		let rect = this.svg.getBoundingClientRect()
 		let W = rect.width || 400
-		let H = 200
+		let H = 225
 		let { l: PL, r: PR, t: PT, b: PB } = this.PAD
 		let plotW = W - PL - PR
 		let plotH = H - PT - PB
@@ -292,12 +305,30 @@ export class LchGraph extends HTMLElement {
 		// Update viewBox to match actual width
 		this.svg.setAttribute('viewBox', `0 0 ${String(W)} ${String(H)}`)
 
+		// Stop rects (one for each step, full height)
+		let stopRectsGroup = this.svg.querySelector('.stop-rects')!
+		stopRectsGroup.innerHTML = ''
+		let stepsCount = scale.length
+		for (let index = 0; index < stepsCount; index++) {
+			let xStart = PL + (index / stepsCount) * plotW
+			let xEnd = PL + ((index + 1) / stepsCount) * plotW
+			let width = xEnd - xStart
+
+			let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+			rect.setAttribute('x', String(xStart))
+			rect.setAttribute('y', String(PT))
+			rect.setAttribute('width', String(width))
+			rect.setAttribute('height', String(plotH))
+			rect.classList.add('stop-rect')
+			stopRectsGroup.append(rect)
+		}
+
 		// Invalid regions (bars for each step)
 		let invalidGroup = this.svg.querySelector('.invalid-regions')!
 		invalidGroup.innerHTML = ''
 		this.renderInvalidRegions(scale, plotW, plotH, PL, PT, config, invalidGroup)
 
-		// Create gradient definitions for value line segments
+		// Create gradient definitions for value line segments and stripe pattern
 		let defs = this.svg.querySelector('defs')
 		if (!defs) {
 			defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs')
@@ -305,6 +336,27 @@ export class LchGraph extends HTMLElement {
 		}
 
 		defs.innerHTML = ''
+
+		// Create 45° stripe pattern for invalid regions
+		let pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern')
+		pattern.setAttribute('id', 'invalid-stripe-pattern')
+		pattern.setAttribute('x', '0')
+		pattern.setAttribute('y', '0')
+		pattern.setAttribute('width', '8')
+		pattern.setAttribute('height', '8')
+		pattern.setAttribute('patternUnits', 'userSpaceOnUse')
+		pattern.setAttribute('patternTransform', 'rotate(45)')
+
+		let line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+		line.setAttribute('x1', '0')
+		line.setAttribute('y1', '0')
+		line.setAttribute('x2', '0')
+		line.setAttribute('y2', '8')
+		line.setAttribute('stroke', 'var(--grey-100)')
+		line.setAttribute('stroke-width', '8')
+		pattern.append(line)
+
+		defs.append(pattern)
 
 		// Create individual line segments with gradients
 		let valueLineGroup = this.svg.querySelector<SVGGElement>('.value-line-group')
@@ -332,10 +384,6 @@ export class LchGraph extends HTMLElement {
 			// Create linear gradient
 			let gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient')
 			gradient.setAttribute('id', gradientId)
-			gradient.setAttribute('x1', String(x1))
-			gradient.setAttribute('y1', String(y1))
-			gradient.setAttribute('x2', String(x2))
-			gradient.setAttribute('y2', String(y2))
 
 			let stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop')
 			stop1.setAttribute('offset', '0%')
@@ -381,7 +429,7 @@ export class LchGraph extends HTMLElement {
 			let bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
 			bgCircle.setAttribute('cx', String(x))
 			bgCircle.setAttribute('cy', String(y))
-			bgCircle.setAttribute('r', '8')
+			bgCircle.setAttribute('r', '5.5')
 			bgCircle.classList.add('point-bg')
 			g.append(bgCircle)
 
@@ -389,18 +437,10 @@ export class LchGraph extends HTMLElement {
 			let colorCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
 			colorCircle.setAttribute('cx', String(x))
 			colorCircle.setAttribute('cy', String(y))
-			colorCircle.setAttribute('r', '6')
+			colorCircle.setAttribute('r', '4')
 			colorCircle.setAttribute('fill', step.hex)
 			colorCircle.classList.add('point-color')
 			g.append(colorCircle)
-
-			// Active ring
-			let ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-			ring.setAttribute('cx', String(x))
-			ring.setAttribute('cy', String(y))
-			ring.setAttribute('r', '10')
-			ring.classList.add('point-ring')
-			g.append(ring)
 
 			pointsGroup.append(g)
 		}
@@ -504,7 +544,7 @@ export class LchGraph extends HTMLElement {
 		let y = clientY - rect.top
 
 		let W = rect.width
-		let H = 200
+		let H = 225
 		let { l: PL, r: PR, t: PT, b: PB } = this.PAD
 		let plotW = W - PL - PR
 		let plotH = H - PT - PB
@@ -526,6 +566,7 @@ export class LchGraph extends HTMLElement {
 		if (pointIndex !== undefined) {
 			this.dragState = { dragging: true, pointIndex }
 			this.svg.setPointerCapture(event.pointerId)
+			this.svg.classList.add('dragging')
 			selectSwatch(pointIndex)
 			event.preventDefault()
 		}
@@ -533,18 +574,13 @@ export class LchGraph extends HTMLElement {
 
 	private onPointerMove(event: PointerEvent) {
 		if (!this.dragState.dragging || this.dragState.pointIndex === undefined) {
-			// Update cursor based on hover
-			let isOverPoint = this.getPointIndexAtPosition(event.clientX, event.clientY) !== undefined
-			this.svg.style.cursor = isOverPoint ? 'grab' : 'crosshair'
 			return
 		}
-
-		this.svg.style.cursor = 'grabbing'
 
 		let rect = this.svg.getBoundingClientRect()
 		let y = event.clientY - rect.top
 		let config = CHANNEL_CONFIGS[this.channel]
-		let H = 200
+		let H = 225
 		let { t: PT, b: PB } = this.PAD
 		let plotH = H - PT - PB
 
@@ -593,7 +629,7 @@ export class LchGraph extends HTMLElement {
 		if (this.dragState.dragging) {
 			this.svg.releasePointerCapture(event.pointerId)
 			this.dragState = { dragging: false, pointIndex: undefined }
-			this.svg.style.cursor = 'crosshair'
+			this.svg.classList.remove('dragging')
 		}
 	}
 }
