@@ -17,15 +17,15 @@ const styles = css`
 	}
 
 	.slider {
-		position: relative;
-		block-size: 32px;
-		touch-action: none;
-		cursor: grab;
-		user-select: none;
-	}
+		--focus-shadow: 0 0 0 0 transparent;
 
-	.slider.dragging {
-		cursor: grabbing;
+		position: relative;
+		touch-action: none;
+		user-select: none;
+
+		&:focus-within {
+			--focus-shadow: 0 0 0 2px light-dark(rgb(0 0 0 / 25%), rgb(255 255 255 / 25%));
+		}
 	}
 
 	.sr-only {
@@ -42,27 +42,31 @@ const styles = css`
 	}
 
 	.track {
-		position: absolute;
-		inset-block-start: 50%;
-		inset-inline: 0;
 		block-size: 20px;
 		overflow: hidden;
-		background-color: rgb(255 255 255 / 16%);
-		border-radius: 10px;
-		transform: translateY(-50%);
+		background-color: color-mix(var(--ui-border), transparent 50%);
+		border: 1px solid var(--ui-border);
+		border-radius: var(--radius-round);
 	}
 
 	.handle {
 		position: absolute;
-		inset-block-start: 0;
-		inline-size: 10px;
-		block-size: 32px;
+		inset-block-start: 1px;
+		inline-size: 20px;
+		block-size: 20px;
 		pointer-events: none;
-		background: #fff;
-		border: 1.5px solid rgb(0 0 0 / 25%);
-		border-radius: 3px;
-		box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
-		transform: translateX(-50%);
+		cursor: grab;
+		border-radius: var(--radius-round);
+		box-shadow:
+			inset 0 0 0 1.5px light-dark(#fff, var(--grey-100)),
+			0 0 0 1.5px var(--grey-200),
+			0 1px 4px rgb(0 0 0 / 35%),
+			var(--focus-shadow);
+		translate: -50% 0;
+	}
+
+	.dragging .handle {
+		cursor: grabbing;
 	}
 `
 

@@ -40,9 +40,8 @@ const styles = css`
 	} */
 
 	.field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
+		display: grid;
+		gap: var(--space-sm);
 	}
 
 	.field label {
@@ -89,22 +88,6 @@ const styles = css`
 
 	input:focus {
 		border-color: var(--border-focus);
-	}
-
-	.gamut-warning {
-		display: none;
-		grid-column: 1 / -1;
-		padding: 10px 12px;
-		font-family: var(--font-mono);
-		font-size: 12px;
-		color: var(--error);
-		background: rgb(255 107 53 / 10%);
-		border: 1px solid rgb(255 107 53 / 30%);
-		border-radius: var(--radius-md);
-	}
-
-	.gamut-warning.show {
-		display: block;
 	}
 `
 
