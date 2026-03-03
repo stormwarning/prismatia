@@ -14,6 +14,7 @@
 	--ui-bg-primary: var(--grey-050);
 	--ui-bg-secondary: var(--grey-200);
 	--ui-bg-tertiary: var(--grey-300);
+	--ui-border: var(--grey-200);
 
 	/** Spacing. */
 	--space-xxs: 2px;

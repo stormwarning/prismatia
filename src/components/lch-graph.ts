@@ -18,7 +18,8 @@ const styles = css`
 	}
 
 	.graph-wrapper {
-		/* background: var(--ui-bg-tertiary); */
+		display: grid;
+		gap: var(--space-sm);
 	}
 
 	.graph-heading {
@@ -46,7 +47,7 @@ const styles = css`
 	}
 
 	.value-label-text {
-		flex: 1 1 auto;
+		flex: 1 1 100%;
 		font-family: var(--text-family-mono);
 		font-size: 10px;
 		color: var(--ui-foreground);
@@ -67,13 +68,13 @@ const styles = css`
 
 	.stop-rect {
 		fill: transparent;
-		stroke: var(--grey-200);
+		stroke: var(--ui-border);
 	}
 
 	.invalid-region {
 		fill: var(--grey-100);
 		fill: url('#invalid-stripe-pattern');
-		stroke: var(--grey-200);
+		stroke: var(--ui-border);
 	}
 
 	.value-line {
@@ -89,7 +90,7 @@ const styles = css`
 
 	.point-bg {
 		fill: transparent;
-		stroke: var(--grey-200);
+		stroke: var(--ui-border);
 		stroke-width: 1.5px;
 	}
 
@@ -352,7 +353,8 @@ export class LchGraph extends HTMLElement {
 		line.setAttribute('y1', '0')
 		line.setAttribute('x2', '0')
 		line.setAttribute('y2', '8')
-		line.setAttribute('stroke', 'var(--grey-100)')
+		line.setAttribute('stroke', 'var(--ui-border)')
+		line.setAttribute('stroke-opacity', '0.5')
 		line.setAttribute('stroke-width', '8')
 		pattern.append(line)
 
