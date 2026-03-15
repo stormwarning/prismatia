@@ -19,27 +19,6 @@ const styles = css`
 		align-items: center;
 	}
 
-	.gamut-select {
-		padding: 6px 12px;
-		font-family: var(--font-mono);
-		font-size: 11px;
-		color: var(--text);
-		background: var(--surface-2);
-		border: 1px solid var(--border);
-		border-radius: var(--radius-sm);
-		transition: all 0.12s;
-	}
-
-	.gamut-select:hover {
-		background: rgb(255 255 255 / 8%);
-		border-color: var(--border-2);
-	}
-
-	.gamut-select:focus {
-		outline: 1px solid var(--border-focus);
-		outline-offset: -1px;
-	}
-
 	.actions {
 		display: flex;
 		gap: var(--space-sm);
@@ -107,10 +86,10 @@ export class GlobalControls extends HTMLElement {
 				${styles}
 			</style>
 			<div class="controls">
-				<select class="gamut-select" id="gamut-select">
-					<option value="srgb" ${currentGamut === 'srgb' ? 'selected' : ''}>sRGB</option>
-					<option value="p3" ${currentGamut === 'p3' ? 'selected' : ''}>Display P3</option>
-				</select>
+				<f-select id="gamut-select" value="${currentGamut}">
+					<option value="srgb">sRGB</option>
+					<option value="p3">Display P3</option>
+				</f-select>
 				<div class="actions">
 					<button class="btn" id="reset-btn">Reset</button>
 					<button class="btn" id="export-json-btn">
@@ -126,9 +105,9 @@ export class GlobalControls extends HTMLElement {
 
 	private attachListeners() {
 		// Gamut select
-		this.shadow.querySelector('#gamut-select')?.addEventListener('change', (event) => {
-			let select = event.target as HTMLSelectElement
-			setGamut(select.value as 'srgb' | 'p3')
+		this.shadow.querySelector('#gamut-select')?.addEventListener('change', () => {
+			let select = this.shadow.querySelector<HTMLSelectElement>('#gamut-select')
+			setGamut(select?.value as 'srgb' | 'p3')
 		})
 
 		// Reset
