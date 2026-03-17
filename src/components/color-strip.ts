@@ -1,6 +1,6 @@
 import './swatch-button.js'
 
-import { $fullScale } from '../stores/scale.js'
+import { $activeScaleIndex, $fullScales, addScale } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -8,7 +8,13 @@ const styles = css`
 		display: block;
 	}
 
-	.strip-container {
+	.strips {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+
+	.strip-row {
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-sm);
@@ -33,15 +39,45 @@ const styles = css`
 		display: flex;
 		gap: 1px;
 		block-size: 40px;
+		outline: 2px solid transparent;
+		outline-offset: 2px;
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
+		transition: outline-color 100ms ease;
+	}
+
+	.strip.active {
+		outline-color: var(--grey-600);
+	}
+
+	.add-scale-btn {
+		display: flex;
+		gap: var(--space-xs);
+		align-items: center;
+		justify-content: center;
+		padding: var(--space-xs) var(--space-sm);
+		font-family: var(--font-mono);
+		font-size: 12px;
+		font-weight: 600;
+		color: var(--text-muted);
+		cursor: pointer;
+		background: none;
+		border: 1px dashed var(--grey-300);
+		border-radius: var(--radius-md);
+		transition:
+			color 150ms ease,
+			border-color 150ms ease;
+
+		&:hover {
+			color: var(--text-default);
+			border-color: var(--grey-600);
+		}
 	}
 `
 
 export class ColorStrip extends HTMLElement {
 	private shadow: ShadowRoot
 	private unsubscribers: Array<() => void> = []
-	private swatchElements: Map<number, Element> = new Map()
 
 	constructor() {
 		super()
@@ -51,10 +87,12 @@ export class ColorStrip extends HTMLElement {
 	connectedCallback() {
 		this.render()
 
-		// Subscribe to store changes - only re-render when scale changes
 		this.unsubscribers.push(
-			$fullScale.subscribe(() => {
+			$fullScales.subscribe(() => {
 				this.render()
+			}),
+			$activeScaleIndex.subscribe(() => {
+				this.updateActiveStrip()
 			}),
 		)
 	}
@@ -65,31 +103,60 @@ export class ColorStrip extends HTMLElement {
 	}
 
 	private render() {
-		let scale = $fullScale.get()
+		let fullScales = $fullScales.get()
+		let activeScaleIndex = $activeScaleIndex.get()
 
 		this.shadow.innerHTML = html`
 			<style>
 				${styles}
 			</style>
-			<div class="strip-container">
-				<!--<div class="labels">
-					${scale.map((step) => `<span class="label">${String(step.stop)}</span>`).join('')}
-				</div>-->
-				<div class="strip">
-					${scale.map((_, index) => `<swatch-button data-index="${String(index)}"></swatch-button>`).join('')}
-				</div>
+			<div class="strips">
+				${fullScales
+					.map(
+						(scale, scaleIndex) => html`
+							<div class="strip-row">
+								<div class="strip ${scaleIndex === activeScaleIndex ? 'active' : ''}" data-scale-index="${String(scaleIndex)}">
+									${scale.map((_, index) => `<swatch-button data-index="${String(index)}" data-scale-index="${String(scaleIndex)}"></swatch-button>`).join('')}
+								</div>
+							</div>
+						`,
+					)
+					.join('')}
+				<button class="add-scale-btn">+ Add Scale</button>
 			</div>
 		`
 
-		// Update swatch components with data
-		this.swatchElements.clear()
-		for (let [index, step] of scale.entries()) {
-			let element = this.shadow.querySelector(`swatch-button[data-index="${String(index)}"]`)
-			if (element) {
-				/* @ts-expect-error This doesn't exist on Element? */
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-				element.setData(step, index)
-				this.swatchElements.set(index, element)
+		// Set data on each swatch
+		for (let [scaleIndex, scale] of fullScales.entries()) {
+			for (let [index, step] of scale.entries()) {
+				let element = this.shadow.querySelector(
+					`swatch-button[data-index="${String(index)}"][data-scale-index="${String(scaleIndex)}"]`,
+				)
+				if (element) {
+					/* @ts-expect-error This doesn't exist on Element? */
+					// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+					element.setData(step, index, scaleIndex)
+				}
+			}
+		}
+
+		let addScaleButton = this.shadow.querySelector('.add-scale-btn')
+		if (addScaleButton) {
+			addScaleButton.addEventListener('click', () => {
+				addScale()
+			})
+		}
+	}
+
+	private updateActiveStrip() {
+		let activeScaleIndex = $activeScaleIndex.get()
+		let strips = this.shadow.querySelectorAll('.strip')
+		for (let strip of strips) {
+			let stripScaleIndex = Number((strip as HTMLElement).dataset.scaleIndex)
+			if (stripScaleIndex === activeScaleIndex) {
+				strip.classList.add('active')
+			} else {
+				strip.classList.remove('active')
 			}
 		}
 	}

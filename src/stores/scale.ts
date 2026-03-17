@@ -5,42 +5,48 @@ import { computeColorValues } from '../lib/color.js'
 import type { Channel, ColorStep, FullColorStep } from '../types'
 
 /** Default color scale - a blue/violet scale */
-// const DEFAULT_SCALE: ColorStep[] = [
-// 	{ stop: 50, L: 0.9843, C: 0.0074, H: 260.73 },
-// 	{ stop: 100, L: 0.9624, C: 0.0178, H: 261.34 },
-// 	{ stop: 200, L: 0.9017, C: 0.0478, H: 259.1 },
-// 	{ stop: 300, L: 0.814, C: 0.0944, H: 256.05 },
-// 	{ stop: 400, L: 0.759, C: 0.1258, H: 254.28 },
-// 	{ stop: 500, L: 0.6403, C: 0.1965, H: 254.23 },
-// 	{ stop: 600, L: 0.5109, C: 0.1813, H: 257.4 },
-// 	{ stop: 700, L: 0.3841, C: 0.1381, H: 258.43 },
-// 	{ stop: 800, L: 0.2874, C: 0.098, H: 258.78 },
-// 	{ stop: 900, L: 0.2235, C: 0.0695, H: 258.79 },
-// 	{ stop: 950, L: 0.2003, C: 0.0608, H: 258.77 },
-// ]
 const DEFAULT_SCALE: ColorStep[] = [
-	{ stop: 50, L: 0, C: 0, H: 290 },
-	{ stop: 100, L: 0.2175, C: 0.0517, H: 289.92 },
-	{ stop: 200, L: 0.3405, C: 0.0527, H: 229.81 },
-	{ stop: 300, L: 0.4562, C: 0.0918, H: 157.2 },
-	{ stop: 400, L: 0.5312, C: 0.1113, H: 131.53 },
-	{ stop: 500, L: 0.6038, C: 0.081, H: 71.04 },
-	{ stop: 600, L: 0.686, C: 0.1043, H: 3.64 },
-	{ stop: 700, L: 0.7612, C: 0.1029, H: 320.31 },
-	{ stop: 800, L: 0.8456, C: 0.0581, H: 275.37 },
-	{ stop: 900, L: 0.9291, C: 0.0294, H: 199.28 },
-	{ stop: 950, L: 1, C: 0, H: 200 },
+	{ stop: 50, L: 0.9843, C: 0.0074, H: 260.73 },
+	{ stop: 100, L: 0.9624, C: 0.0178, H: 261.34 },
+	{ stop: 200, L: 0.9017, C: 0.0478, H: 259.1 },
+	{ stop: 300, L: 0.814, C: 0.0944, H: 256.05 },
+	{ stop: 400, L: 0.759, C: 0.1258, H: 254.28 },
+	{ stop: 500, L: 0.6403, C: 0.1965, H: 254.23 },
+	{ stop: 600, L: 0.5109, C: 0.1813, H: 257.4 },
+	{ stop: 700, L: 0.3841, C: 0.1381, H: 258.43 },
+	{ stop: 800, L: 0.2874, C: 0.098, H: 258.78 },
+	{ stop: 900, L: 0.2235, C: 0.0695, H: 258.79 },
+	{ stop: 950, L: 0.2003, C: 0.0608, H: 258.77 },
 ]
+// const DEFAULT_SCALE: ColorStep[] = [
+// 	{ stop: 50, L: 0, C: 0, H: 290 },
+// 	{ stop: 100, L: 0.2175, C: 0.0517, H: 289.92 },
+// 	{ stop: 200, L: 0.3405, C: 0.0527, H: 229.81 },
+// 	{ stop: 300, L: 0.4562, C: 0.0918, H: 157.2 },
+// 	{ stop: 400, L: 0.5312, C: 0.1113, H: 131.53 },
+// 	{ stop: 500, L: 0.6038, C: 0.081, H: 71.04 },
+// 	{ stop: 600, L: 0.686, C: 0.1043, H: 3.64 },
+// 	{ stop: 700, L: 0.7612, C: 0.1029, H: 320.31 },
+// 	{ stop: 800, L: 0.8456, C: 0.0581, H: 275.37 },
+// 	{ stop: 900, L: 0.9291, C: 0.0294, H: 199.28 },
+// 	{ stop: 950, L: 1, C: 0, H: 200 },
+// ]
 
-/** The raw scale data (persisted to localStorage) */
-export const $scale: WritableAtom<ColorStep[]> = persistentAtom<ColorStep[]>(
-	'prismatia:scale',
-	DEFAULT_SCALE,
+/** All scales (persisted to localStorage) */
+export const $scales: WritableAtom<ColorStep[][]> = persistentAtom<ColorStep[][]>(
+	'prismatia:scales',
+	[DEFAULT_SCALE.map((s) => ({ ...s }))],
 	{
 		encode: JSON.stringify,
 		decode: JSON.parse,
 	},
 )
+
+/** Currently active scale index */
+export const $activeScaleIndex = atom<number>(0)
+
+/** The active scale (derived from $scales and $activeScaleIndex) */
+export const $scale = computed([$scales, $activeScaleIndex], (scales, index) => scales[index] ?? [])
 
 /** Currently selected swatch index (defaults to 500-level swatch at index 5) */
 export const $activeIndex = atom<number | undefined>(5)
@@ -51,14 +57,21 @@ export const $gamut = persistentAtom<'srgb' | 'p3'>('prismatia:gamut', 'srgb', {
 	decode: JSON.parse,
 })
 
-/** Computed full scale with hex values and contrast ratios */
+/** Computed full scales with hex values and contrast ratios */
+export const $fullScales = computed($scales, (scales) =>
+	scales.map(
+		(scale) =>
+			scale.map((step) => ({
+				...step,
+				...computeColorValues(step),
+			})) as FullColorStep[],
+	),
+)
+
+/** Computed full active scale (for backward compatibility) */
 export const $fullScale = computed(
-	$scale,
-	(scale) =>
-		scale.map((step) => ({
-			...step,
-			...computeColorValues(step),
-		})) as FullColorStep[],
+	[$fullScales, $activeScaleIndex],
+	(fullScales, index) => fullScales[index] ?? [],
 )
 
 /** Currently selected color step (if any) */
@@ -73,10 +86,20 @@ export const $activeFullColor = computed([$fullScale, $activeIndex], (scale, ind
 	return scale[index] ?? undefined
 })
 
+// ─── Internal helpers ────────────────────────────────────────────────────────
+
+function setActiveScale(newScale: ColorStep[]): void {
+	let scales = [...$scales.get()]
+	let index = $activeScaleIndex.get()
+	scales[index] = newScale
+	$scales.set(scales)
+}
+
 // ─── Actions ────────────────────────────────────────────────────────────────
 
-/** Select a swatch by index */
-export function selectSwatch(index?: number): void {
+/** Select a swatch by index, and optionally switch the active scale */
+export function selectSwatch(index?: number, scaleIndex?: number): void {
+	if (scaleIndex !== undefined) $activeScaleIndex.set(scaleIndex)
 	$activeIndex.set(index)
 }
 
@@ -85,14 +108,14 @@ export function setGamut(gamut: 'srgb' | 'p3'): void {
 	$gamut.set(gamut)
 }
 
-/** Update a single color step */
+/** Update a single color step in the active scale */
 export function updateStep(index: number, updates: Partial<ColorStep>): void {
 	let scale = $scale.get()
 	if (index < 0 || scale.length <= index) return
 
 	let newScale = [...scale]
 	newScale[index] = { ...newScale[index], ...updates }
-	$scale.set(newScale)
+	setActiveScale(newScale)
 }
 
 /** Update the active color step */
@@ -102,7 +125,7 @@ export function updateActiveStep(updates: Partial<ColorStep>): void {
 	updateStep(index, updates)
 }
 
-/** Global nudge - adjust a channel for all steps */
+/** Global nudge - adjust a channel for all steps in the active scale */
 export function globalNudge(channel: Channel, delta: number): void {
 	let scale = $scale.get()
 	let newScale = scale.map((step) => {
@@ -124,16 +147,30 @@ export function globalNudge(channel: Channel, delta: number): void {
 		return newStep
 	})
 
-	$scale.set(newScale)
+	setActiveScale(newScale)
 }
 
-/** Reset scale to default */
-export function resetScale(): void {
-	$scale.set(DEFAULT_SCALE.map((s) => ({ ...s })))
+/** Add a new scale derived from the last scale, with hue shifted by -45° */
+export function addScale(): void {
+	let scales = $scales.get()
+	let lastScale = scales.at(-1) ?? []
+	let newScale: ColorStep[] = lastScale.map((step) => ({
+		...step,
+		H: (((step.H - 45) % 360) + 360) % 360,
+	}))
+	$scales.set([...scales, newScale])
+	$activeScaleIndex.set(scales.length)
 	$activeIndex.set(undefined)
 }
 
-/** Export scale as JSON */
+/** Reset all scales to default */
+export function resetScale(): void {
+	$scales.set([DEFAULT_SCALE.map((s) => ({ ...s }))])
+	$activeScaleIndex.set(0)
+	$activeIndex.set(undefined)
+}
+
+/** Export active scale as JSON */
 export function exportAsJSON(): string {
 	let scale = $fullScale.get()
 	return JSON.stringify(
@@ -149,7 +186,7 @@ export function exportAsJSON(): string {
 	)
 }
 
-/** Export scale as CSS custom properties */
+/** Export active scale as CSS custom properties */
 export function exportAsCSS(): string {
 	let scale = $scale.get()
 	let properties = scale

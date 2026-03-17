@@ -1,5 +1,5 @@
 import { getBestContrastColor, getContrastLevel } from '../lib/color.js'
-import { $activeIndex, selectSwatch } from '../stores/scale.js'
+import { $activeIndex, $activeScaleIndex, selectSwatch } from '../stores/scale.js'
 import type { FullColorStep } from '../types'
 import { css, html } from './_utilities.js'
 
@@ -110,6 +110,7 @@ export class SwatchButton extends HTMLElement {
 	private shadow: ShadowRoot
 	private unsubscribers: Array<() => void> = []
 	private index: number = 0
+	private scaleIndex: number = 0
 	private step: FullColorStep | undefined
 
 	constructor() {
@@ -124,9 +125,12 @@ export class SwatchButton extends HTMLElement {
 			this.index = Number.parseInt(indexAttribute, 10)
 		}
 
-		// Subscribe to active index changes
+		// Subscribe to active index/scale changes
 		this.unsubscribers.push(
 			$activeIndex.subscribe(() => {
+				this.updateActiveState()
+			}),
+			$activeScaleIndex.subscribe(() => {
 				this.updateActiveState()
 			}),
 		)
@@ -139,9 +143,10 @@ export class SwatchButton extends HTMLElement {
 		this.unsubscribers = []
 	}
 
-	setData(step: FullColorStep, index: number) {
+	setData(step: FullColorStep, index: number, scaleIndex: number = 0) {
 		this.step = step
 		this.index = index
+		this.scaleIndex = scaleIndex
 		this.dataset.index = String(index)
 		this.render()
 	}
@@ -149,9 +154,11 @@ export class SwatchButton extends HTMLElement {
 	private updateActiveState() {
 		if (!this.step) return
 		let activeIndex = $activeIndex.get()
+		let activeScaleIndex = $activeScaleIndex.get()
+		let isActive = this.index === activeIndex && this.scaleIndex === activeScaleIndex
 		let button = this.shadow.querySelector('.swatch')
 		if (button) {
-			if (this.index === activeIndex) {
+			if (isActive) {
 				button.classList.add('active')
 				button.setAttribute('aria-pressed', 'true')
 			} else {
@@ -167,7 +174,8 @@ export class SwatchButton extends HTMLElement {
 		let { color, ratio } = getBestContrastColor(this.step.hex)
 		let level = getContrastLevel(ratio)
 		let activeIndex = $activeIndex.get()
-		let isActive = this.index === activeIndex
+		let activeScaleIndex = $activeScaleIndex.get()
+		let isActive = this.index === activeIndex && this.scaleIndex === activeScaleIndex
 		let classes = ['swatch', isActive ? 'active' : '', this.step.isInGamut ? '' : 'out-of-gamut']
 			.filter(Boolean)
 			.join(' ')
@@ -191,7 +199,7 @@ export class SwatchButton extends HTMLElement {
 		let button = this.shadow.querySelector('.swatch')
 		if (button) {
 			button.addEventListener('click', () => {
-				selectSwatch(this.index)
+				selectSwatch(this.index, this.scaleIndex)
 			})
 		}
 	}
