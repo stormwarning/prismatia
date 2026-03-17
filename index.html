@@ -66,12 +66,22 @@
 			.app {
 				display: grid;
 				grid-template-areas:
-					'header header'
-					'controls controls'
-					'palette editor';
-				grid-template-rows: auto auto 1fr;
-				grid-template-columns: 1fr 40dvi;
-				block-size: 100vb;
+					'header'
+					'controls'
+					'palette'
+					'editor';
+				grid-template-rows: auto auto 30dvb 1fr;
+				grid-template-columns: 1fr;
+				block-size: 100dvb;
+
+				@media (width > 768px) {
+					grid-template-areas:
+						'header header'
+						'controls controls'
+						'palette editor';
+					grid-template-rows: auto auto 1fr;
+					grid-template-columns: 1fr 40dvi;
+				}
 			}
 
 			.header {
@@ -101,16 +111,27 @@
 			.palette {
 				grid-area: palette;
 				padding: var(--space-md);
+				margin-block-start: var(--space-md);
+				overflow-block: auto;
+
+				@media (width > 768px) {
+					margin-block-start: 0;
+				}
 			}
 
 			.editor {
 				position: sticky;
 				grid-area: editor;
 				margin: var(--space-sm);
+				margin-block-start: 0;
 				overflow-block: auto;
 				overscroll-behavior: none;
 				border: 1px solid var(--grey-200);
 				border-radius: var(--radius-md);
+
+				@media (width > 768px) {
+					margin-block-start: var(--space-sm);
+				}
 			}
 
 			.editor-contents {
