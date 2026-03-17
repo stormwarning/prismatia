@@ -1,7 +1,7 @@
 import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, type WritableAtom } from 'nanostores'
 
-import { computeColorValues } from '../lib/color.js'
+import { clampToValidRanges, computeColorValues, getValidRangesForChannel } from '../lib/color.js'
 import type { Channel, ColorStep, FullColorStep } from '../types'
 
 /** Default color scale - a blue/violet scale */
@@ -125,9 +125,10 @@ export function updateActiveStep(updates: Partial<ColorStep>): void {
 	updateStep(index, updates)
 }
 
-/** Global nudge - adjust a channel for all steps in the active scale */
+/** Global nudge - adjust a channel for all steps in the active scale, clamped to gamut */
 export function globalNudge(channel: Channel, delta: number): void {
 	let scale = $scale.get()
+	let gamut = $gamut.get()
 	let newScale = scale.map((step) => {
 		let newStep = { ...step }
 
@@ -144,20 +145,27 @@ export function globalNudge(channel: Channel, delta: number): void {
 			default:
 		}
 
+		let validRanges = getValidRangesForChannel(channel, newStep, gamut)
+		newStep[channel] = clampToValidRanges(newStep[channel], validRanges)
+
 		return newStep
 	})
 
 	setActiveScale(newScale)
 }
 
-/** Add a new scale derived from the last scale, with hue shifted by -45° */
+/** Add a new scale derived from the last scale, with hue shifted by -45°, clamped to gamut */
 export function addScale(): void {
 	let scales = $scales.get()
 	let lastScale = scales.at(-1) ?? []
-	let newScale: ColorStep[] = lastScale.map((step) => ({
-		...step,
-		H: (((step.H - 45) % 360) + 360) % 360,
-	}))
+	let gamut = $gamut.get()
+	let newScale: ColorStep[] = lastScale.map((step) => {
+		let newH = (((step.H - 45) % 360) + 360) % 360
+		let newStep = { ...step, H: newH }
+		let validC = getValidRangesForChannel('C', newStep, gamut)
+		newStep.C = clampToValidRanges(step.C, validC)
+		return newStep
+	})
 	$scales.set([...scales, newScale])
 	$activeScaleIndex.set(scales.length)
 	$activeIndex.set(undefined)

@@ -1,6 +1,6 @@
 import './swatch-button.js'
 
-import { $activeScaleIndex, $fullScales, addScale } from '../stores/scale.js'
+import { $fullScales, addScale } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -20,34 +20,12 @@ const styles = css`
 		gap: var(--space-sm);
 	}
 
-	.labels {
-		display: flex;
-		padding: 0 2px;
-	}
-
-	.label {
-		flex: 1;
-		font-family: var(--font-mono);
-		font-size: 11px;
-		font-weight: 600;
-		color: var(--text-muted);
-		text-align: center;
-		letter-spacing: 0.02em;
-	}
-
 	.strip {
 		display: flex;
 		gap: 1px;
 		block-size: 40px;
-		outline: 2px solid transparent;
-		outline-offset: 2px;
 		border-radius: var(--radius-lg);
 		box-shadow: var(--shadow-lg);
-		transition: outline-color 100ms ease;
-	}
-
-	.strip.active {
-		outline-color: var(--grey-600);
 	}
 
 	.add-scale-btn {
@@ -91,9 +69,6 @@ export class ColorStrip extends HTMLElement {
 			$fullScales.subscribe(() => {
 				this.render()
 			}),
-			$activeScaleIndex.subscribe(() => {
-				this.updateActiveStrip()
-			}),
 		)
 	}
 
@@ -104,7 +79,6 @@ export class ColorStrip extends HTMLElement {
 
 	private render() {
 		let fullScales = $fullScales.get()
-		let activeScaleIndex = $activeScaleIndex.get()
 
 		this.shadow.innerHTML = html`
 			<style>
@@ -115,7 +89,7 @@ export class ColorStrip extends HTMLElement {
 					.map(
 						(scale, scaleIndex) => html`
 							<div class="strip-row">
-								<div class="strip ${scaleIndex === activeScaleIndex ? 'active' : ''}" data-scale-index="${String(scaleIndex)}">
+								<div class="strip" data-scale-index="${String(scaleIndex)}">
 									${scale.map((_, index) => `<swatch-button data-index="${String(index)}" data-scale-index="${String(scaleIndex)}"></swatch-button>`).join('')}
 								</div>
 							</div>
@@ -145,19 +119,6 @@ export class ColorStrip extends HTMLElement {
 			addScaleButton.addEventListener('click', () => {
 				addScale()
 			})
-		}
-	}
-
-	private updateActiveStrip() {
-		let activeScaleIndex = $activeScaleIndex.get()
-		let strips = this.shadow.querySelectorAll('.strip')
-		for (let strip of strips) {
-			let stripScaleIndex = Number((strip as HTMLElement).dataset.scaleIndex)
-			if (stripScaleIndex === activeScaleIndex) {
-				strip.classList.add('active')
-			} else {
-				strip.classList.remove('active')
-			}
 		}
 	}
 }

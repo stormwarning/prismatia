@@ -75,6 +75,7 @@ const styles = css`
 		fill: var(--grey-100);
 		fill: url('#invalid-stripe-pattern');
 		stroke: var(--ui-border);
+		transition: all 150ms ease-in;
 	}
 
 	.value-line {
