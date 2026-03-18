@@ -56,6 +56,7 @@ const styles = css`
 		block-size: 20px;
 		pointer-events: none;
 		cursor: grab;
+		background-color: var(--current-color, transparent);
 		border-radius: var(--radius-round);
 		box-shadow:
 			inset 0 0 0 1.5px light-dark(#fff, var(--grey-100)),

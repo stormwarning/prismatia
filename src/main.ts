@@ -9,8 +9,12 @@ import './components/channel-slider.js'
 import './components/color-strip.js'
 import './components/swatch-editor.js'
 import './components/lch-graph.js'
-// Initialize stores (loads from localStorage if available)
-import './stores/scale.js'
 
-// eslint-disable-next-line no-undef
+// Initialize stores (loads from localStorage if available)
+import { $activeFullColor } from './stores/scale.js'
+
+$activeFullColor.subscribe((color) => {
+	document.body.style.setProperty('--current-color', color?.hex ?? 'transparent')
+})
+
 console.info('Prismatia OKLCH Scale Editor initialized')
