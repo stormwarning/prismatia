@@ -20,6 +20,9 @@ export interface FullColorStep extends ColorStep, ComputedColor {}
 /** Channel type for OKLCH */
 export type Channel = 'L' | 'C' | 'H'
 
+/** Color display mode for the CSS string input */
+export type ColorMode = 'hex' | 'rgb' | 'lch' | 'oklch'
+
 /** Channel configuration for graphs */
 export interface ChannelConfig {
 	color: string

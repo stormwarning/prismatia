@@ -2,7 +2,7 @@ import { persistentAtom } from '@nanostores/persistent'
 import { atom, computed, type WritableAtom } from 'nanostores'
 
 import { clampToValidRanges, computeColorValues, getValidRangesForChannel } from '../lib/color.js'
-import type { Channel, ColorStep, FullColorStep } from '../types'
+import type { Channel, ColorMode, ColorStep, FullColorStep } from '../types'
 
 /** Default color scale - a blue/violet scale */
 const DEFAULT_SCALE: ColorStep[] = [
@@ -57,6 +57,12 @@ export const $gamut = persistentAtom<'srgb' | 'p3'>('prismatia:gamut', 'srgb', {
 	decode: JSON.parse,
 })
 
+/** Selected color display mode for CSS string input (persisted to localStorage) */
+export const $colorMode = persistentAtom<ColorMode>('prismatia:color-mode', 'hex', {
+	encode: JSON.stringify,
+	decode: JSON.parse,
+})
+
 /** Computed full scales with hex values and contrast ratios */
 export const $fullScales = computed($scales, (scales) =>
 	scales.map(
@@ -106,6 +112,11 @@ export function selectSwatch(index?: number, scaleIndex?: number): void {
 /** Set the color gamut for graph constraints */
 export function setGamut(gamut: 'srgb' | 'p3'): void {
 	$gamut.set(gamut)
+}
+
+/** Set the color display mode */
+export function setColorMode(mode: ColorMode): void {
+	$colorMode.set(mode)
 }
 
 /** Update a single color step in the active scale */

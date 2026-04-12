@@ -1,7 +1,19 @@
-import { clampToValidRanges, getValidRangesForChannel, hexToOklch } from '../lib/color.js'
-import { $activeFullColor, $activeIndex, $gamut, updateActiveStep } from '../stores/scale.js'
+import {
+	clampToValidRanges,
+	getValidRangesForChannel,
+	parseColorString,
+	toColorString,
+} from '../lib/color.js'
+import {
+	$activeFullColor,
+	$activeIndex,
+	$colorMode,
+	$gamut,
+	setColorMode,
+	updateActiveStep,
+} from '../stores/scale.js'
 // eslint-disable-next-line import-x/extensions
-import { CHANNEL_CONFIGS } from '../types'
+import { CHANNEL_CONFIGS, type ColorMode } from '../types'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -65,7 +77,6 @@ const styles = css`
 
 	input[type='number'],
 	input[type='text'] {
-		inline-size: 70px;
 		padding: 6px 8px;
 		font-family: var(--font-mono);
 		font-size: 12px;
@@ -77,13 +88,27 @@ const styles = css`
 		border-radius: var(--radius-md);
 	}
 
+	input[type='number'] {
+		inline-size: 5ch;
+	}
+
 	input[type='number']::-webkit-outer-spin-button,
 	input[type='number']::-webkit-inner-spin-button {
 		appearance: none;
 	}
 
-	input[type='text'].hex-input {
-		inline-size: 90px;
+	input[type='text'].color-string-input {
+		field-sizing: content;
+		inline-size: auto;
+		min-inline-size: 7ch;
+		max-inline-size: 26ch;
+	}
+
+	.color-input-group {
+		display: flex;
+		gap: var(--space-xs);
+		align-items: center;
+		border: 1px solid var(--ui-border);
 	}
 
 	input:focus {
@@ -118,6 +143,16 @@ export class SwatchEditor extends HTMLElement {
 					this.updateValues(color)
 				}
 			}),
+			// Update color string when mode changes
+			$colorMode.subscribe(() => {
+				let color = $activeFullColor.get()
+				if (color && this.lastActiveIndex !== undefined) {
+					let colorStringInput = this.shadow.querySelector<HTMLInputElement>('#color-string-input')
+					if (colorStringInput && colorStringInput !== this.shadow.activeElement) {
+						colorStringInput.value = toColorString(color.L, color.C, color.H, $colorMode.get())
+					}
+				}
+			}),
 		)
 	}
 
@@ -133,9 +168,7 @@ export class SwatchEditor extends HTMLElement {
 			<style>
 				${styles}
 			</style>
-			<div class="editor">
-				${color ? this.renderEditor(color) : ''}
-			</div>
+			<div class="editor">${color ? this.renderEditor(color) : ''}</div>
 		`
 
 		if (color) {
@@ -167,19 +200,35 @@ export class SwatchEditor extends HTMLElement {
 			}
 		}
 
-		// Update hex input (skip if focused)
-		let hexInput = shadow.querySelector<HTMLInputElement>('#hex-input')
-		if (hexInput && hexInput !== activeElement) {
-			hexInput.value = color.hex
+		// Update color string input (skip if focused)
+		let colorStringInput = shadow.querySelector<HTMLInputElement>('#color-string-input')
+		if (colorStringInput && colorStringInput !== activeElement) {
+			colorStringInput.value = toColorString(color.L, color.C, color.H, $colorMode.get())
 		}
 	}
 
 	private renderEditor(color: NonNullable<ReturnType<typeof $activeFullColor.get>>): string {
 		let { L, C, H } = CHANNEL_CONFIGS
+		let mode = $colorMode.get()
+		let colorString = toColorString(color.L, color.C, color.H, mode)
 
 		return html`
 			<div class="editor-header">
 				<span class="editor-title">Edit ${String(color.stop)}</span>
+				<div class="color-input-group">
+					<f-select id="color-mode-select" value="${mode}">
+						<option value="hex">Hex</option>
+						<option value="rgb">RGB</option>
+						<option value="lch">LCH</option>
+						<option value="oklch">OKLCH</option>
+					</f-select>
+					<input
+						type="text"
+						id="color-string-input"
+						class="color-string-input"
+						value="${colorString}"
+					/>
+				</div>
 			</div>
 			<div class="editor-grid">
 				<div class="field">
@@ -224,16 +273,6 @@ export class SwatchEditor extends HTMLElement {
 						/>
 					</div>
 				</div>
-				<div class="field">
-					<label>Hex</label>
-					<input
-						type="text"
-						id="hex-input"
-						class="hex-input"
-						value="${color.hex}"
-						placeholder="#000000"
-					/>
-				</div>
 			</div>
 		`
 	}
@@ -272,13 +311,41 @@ export class SwatchEditor extends HTMLElement {
 			})
 		}
 
-		// Hex input
-		let hexInput = shadow.querySelector<HTMLInputElement>('#hex-input')
-		hexInput?.addEventListener('change', () => {
-			let hex = hexInput.value.trim()
-			if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
-				let oklch = hexToOklch(hex)
-				updateActiveStep(oklch)
+		// Color mode select
+		let modeSelect = shadow.querySelector<HTMLElement>('#color-mode-select')
+		modeSelect?.addEventListener('change', () => {
+			let newMode = (modeSelect as unknown as { value: string }).value as ColorMode
+			setColorMode(newMode)
+			let currentColor = $activeFullColor.get()
+			let colorStringInput = shadow.querySelector<HTMLInputElement>('#color-string-input')
+			if (currentColor && colorStringInput) {
+				colorStringInput.value = toColorString(
+					currentColor.L,
+					currentColor.C,
+					currentColor.H,
+					newMode,
+				)
+			}
+		})
+
+		// Color string input
+		let colorStringInput = shadow.querySelector<HTMLInputElement>('#color-string-input')
+		colorStringInput?.addEventListener('change', () => {
+			let input = colorStringInput.value.trim()
+			let parsed = parseColorString(input)
+			if (parsed) {
+				updateActiveStep(parsed)
+			} else {
+				// Reset to current color on invalid input
+				let currentColor = $activeFullColor.get()
+				if (currentColor) {
+					colorStringInput.value = toColorString(
+						currentColor.L,
+						currentColor.C,
+						currentColor.H,
+						$colorMode.get(),
+					)
+				}
 			}
 		})
 	}

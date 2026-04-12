@@ -1,7 +1,7 @@
 /* eslint-disable yoda */
 import Color from 'colorjs.io'
 
-import type { ColorStep, ComputedColor } from '../types'
+import type { ColorMode, ColorStep, ComputedColor } from '../types'
 
 /** A range of valid values [min, max] */
 export type ValueRange = [number, number]
@@ -122,6 +122,49 @@ export function computeColorValues(step: ColorStep): ComputedColor {
  */
 export function toOklchString(L: number, C: number, H: number): string {
 	return `oklch(${(L * 100).toFixed(1)}% ${C.toFixed(3)} ${H.toFixed(1)})`
+}
+
+/**
+ * Format an OKLCH color as a CSS string in the given mode.
+ */
+export function toColorString(L: number, C: number, H: number, mode: ColorMode): string {
+	// eslint-disable-next-line default-case
+	switch (mode) {
+		case 'hex':
+			return oklchToHex(L, C, H)
+		case 'oklch':
+			return toOklchString(L, C, H)
+
+		case 'lch': {
+			let color = new Color('oklch', [L, C, H]).to('lch')
+			let [lchL, lchC, lchH] = color.coords
+			return `lch(${(lchL ?? 0).toFixed(1)} ${(lchC ?? 0).toFixed(1)} ${(lchH ?? 0).toFixed(1)})`
+		}
+
+		case 'rgb': {
+			let color = new Color('oklch', [L, C, H]).to('srgb').toGamut({ space: 'srgb' })
+			let [r, g, b] = color.coords.map((c) => Math.round((c ?? 0) * 255))
+			return `rgb(${String(r)}, ${String(g)}, ${String(b)})`
+		}
+	}
+}
+
+/**
+ * Parse any valid CSS color string to OKLCH values.
+ * Returns null if the string cannot be parsed.
+ */
+export function parseColorString(input: string): { C: number; H: number; L: number } | undefined {
+	try {
+		let color = new Color(input)
+		let oklch = color.to('oklch')
+		return {
+			L: oklch.coords[0] ?? 0,
+			C: oklch.coords[1] ?? 0,
+			H: oklch.coords[2] ?? 0,
+		}
+	} catch {
+		return undefined
+	}
 }
 
 /**
