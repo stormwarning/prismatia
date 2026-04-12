@@ -89,8 +89,17 @@ export class ColorStrip extends HTMLElement {
 					.map(
 						(scale, scaleIndex) => html`
 							<div class="strip-row">
-								<div class="strip" data-scale-index="${String(scaleIndex)}">
-									${scale.map((_, index) => `<swatch-button data-index="${String(index)}" data-scale-index="${String(scaleIndex)}"></swatch-button>`).join('')}
+								<span>Scale ${String(scaleIndex)}</span>
+								<div
+									class="strip"
+									data-scale-index="${String(scaleIndex)}"
+								>
+									${scale
+										.map(
+											(_, index) =>
+												`<swatch-button data-index="${String(index)}" data-scale-index="${String(scaleIndex)}"></swatch-button>`,
+										)
+										.join('')}
 								</div>
 							</div>
 						`,
