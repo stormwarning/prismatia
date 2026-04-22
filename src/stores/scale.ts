@@ -189,20 +189,26 @@ export function resetScale(): void {
 	$activeIndex.set(undefined)
 }
 
-/** Export active scale as JSON */
-export function exportAsJSON(): string {
+/** Export active scale as Design Tokens JSON (W3C spec) */
+export function exportAsDesignTokensJSON(): string {
 	let scale = $fullScale.get()
-	return JSON.stringify(
-		scale.map((s) => ({
-			stop: s.stop,
-			L: Number.parseFloat(s.L.toFixed(4)),
-			C: Number.parseFloat(s.C.toFixed(4)),
-			H: Number.parseFloat(s.H.toFixed(2)),
-			hex: s.hex,
-		})),
-		undefined,
-		2,
-	)
+	let tokens: Record<string, unknown> = {}
+
+	for (let s of scale) {
+		tokens[String(s.stop)] = {
+			$value: {
+				colorSpace: 'oklch',
+				components: [
+					Number.parseFloat(s.L.toFixed(4)),
+					Number.parseFloat(s.C.toFixed(4)),
+					Number.parseFloat(s.H.toFixed(2)),
+				],
+				hex: s.hex,
+			},
+		}
+	}
+
+	return JSON.stringify({ color: { $type: 'color', ...tokens } }, undefined, 2)
 }
 
 /** Export active scale as CSS custom properties */
@@ -214,5 +220,6 @@ export function exportAsCSS(): string {
 				`  --color-${String(s.stop)}: oklch(${(s.L * 100).toFixed(1)}% ${s.C.toFixed(3)} ${s.H.toFixed(1)});`,
 		)
 		.join('\n')
+
 	return `:root {\n${properties}\n}`
 }
