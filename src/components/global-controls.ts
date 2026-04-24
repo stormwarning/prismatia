@@ -1,5 +1,6 @@
-import { $gamut, exportAsCSS, exportAsJSON, resetScale, setGamut } from '../stores/scale.js'
+import { $gamut, resetScale, setGamut } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
+import type { ExportDialog } from './export-dialog.js'
 
 const styles = css`
 	:host {
@@ -92,13 +93,9 @@ export class GlobalControls extends HTMLElement {
 				</f-select>
 				<div class="actions">
 					<button class="btn" id="reset-btn">Reset</button>
-					<button class="btn" id="export-json-btn">
-						Export JSON
-					</button>
-					<button class="btn primary" id="copy-css-btn">
-						Copy CSS
-					</button>
+					<button class="btn primary" id="export-btn">Export</button>
 				</div>
+				<export-dialog></export-dialog>
 			</div>
 		`
 	}
@@ -118,50 +115,11 @@ export class GlobalControls extends HTMLElement {
 			}
 		})
 
-		// Export JSON
-		this.shadow
-			.querySelector('#export-json-btn')
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
-			?.addEventListener('click', async () => {
-				let json = exportAsJSON()
-				await navigator.clipboard.writeText(json)
-				this.showToast('JSON copied to clipboard')
-			})
-
-		// Copy CSS
-		this.shadow
-			.querySelector('#copy-css-btn')
-			// eslint-disable-next-line @typescript-eslint/no-misused-promises
-			?.addEventListener('click', async () => {
-				let css = exportAsCSS()
-				await navigator.clipboard.writeText(css)
-				this.showToast('CSS copied to clipboard')
-			})
-	}
-
-	private showToast(message: string) {
-		// Simple toast - could be enhanced
-		let toast = document.createElement('div')
-		toast.textContent = message
-		toast.style.cssText = css`
-  	position: fixed;
-  	inset-block-end: 20px;
-  	inset-inline-start: 50%;
-  	z-index: 1000;
-  	padding: 12px 20px;
-  	font-family: var(--font-mono);
-  	font-size: 13px;
-  	color: var(--text);
-  	background: var(--surface-3);
-  	border-radius: var(--radius-md);
-  	box-shadow: var(--shadow-lg);
-  	transform: translateX(-50%);
-  	animation: toast-in 0.2s ease-out;
-  `
-		document.body.append(toast)
-		setTimeout(() => {
-			toast.remove()
-		}, 2000)
+		// Export dialog
+		this.shadow.querySelector('#export-btn')?.addEventListener('click', () => {
+			let dialog = this.shadow.querySelector<ExportDialog>('export-dialog')
+			dialog?.open()
+		})
 	}
 }
 
