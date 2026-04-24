@@ -42,6 +42,34 @@ export const $scales: WritableAtom<ColorStep[][]> = persistentAtom<ColorStep[][]
 	},
 )
 
+/** Scale names (persisted to localStorage) */
+export const $scaleNames: WritableAtom<string[]> = persistentAtom<string[]>(
+	'prismatia:scaleNames',
+	['scale-0'],
+	{
+		encode: JSON.stringify,
+		decode: JSON.parse,
+	},
+)
+
+/** Convert a string to kebab-case */
+function toKebabCase(string_: string): string {
+	return string_
+		.trim()
+		.toLowerCase()
+		.replaceAll(/[\s_]+/g, '-')
+		.replaceAll(/[^a-z0-9-]/g, '')
+		.replaceAll(/-+/g, '-')
+		.replaceAll(/^-|-$/g, '')
+}
+
+/** Get the kebab-case name for a scale by index, with fallback */
+export function getScaleName(index: number): string {
+	let names = $scaleNames.get()
+	let name = names[index]
+	return name ? toKebabCase(name) : `scale-${String(index)}`
+}
+
 /** Currently active scale index */
 export const $activeScaleIndex = atom<number>(0)
 
@@ -178,6 +206,7 @@ export function addScale(): void {
 		return newStep
 	})
 	$scales.set([...scales, newScale])
+	$scaleNames.set([...$scaleNames.get(), `scale-${String(scales.length)}`])
 	$activeScaleIndex.set(scales.length)
 	$activeIndex.set(undefined)
 }
@@ -185,40 +214,51 @@ export function addScale(): void {
 /** Reset all scales to default */
 export function resetScale(): void {
 	$scales.set([DEFAULT_SCALE.map((s) => ({ ...s }))])
+	$scaleNames.set(['scale-0'])
 	$activeScaleIndex.set(0)
 	$activeIndex.set(undefined)
 }
 
-/** Export active scale as Design Tokens JSON (W3C spec) */
+/** Export all scales as Design Tokens JSON */
 export function exportAsDesignTokensJSON(): string {
-	let scale = $fullScale.get()
-	let tokens: Record<string, unknown> = {}
+	let fullScales = $fullScales.get()
+	let color: Record<string, unknown> = {}
 
-	for (let s of scale) {
-		tokens[String(s.stop)] = {
-			$value: {
-				colorSpace: 'oklch',
-				components: [
-					Number.parseFloat(s.L.toFixed(4)),
-					Number.parseFloat(s.C.toFixed(4)),
-					Number.parseFloat(s.H.toFixed(2)),
-				],
-				hex: s.hex,
-			},
+	for (let [index, scale] of fullScales.entries()) {
+		let name = getScaleName(index)
+		let tokens: Record<string, unknown> = { $type: 'color' }
+
+		for (let s of scale) {
+			tokens[String(s.stop)] = {
+				$value: {
+					colorSpace: 'oklch',
+					components: [
+						Number.parseFloat(s.L.toFixed(4)),
+						Number.parseFloat(s.C.toFixed(4)),
+						Number.parseFloat(s.H.toFixed(2)),
+					],
+					hex: s.hex,
+				},
+			}
 		}
+
+		color[name] = tokens
 	}
 
-	return JSON.stringify({ color: { $type: 'color', ...tokens } }, undefined, 2)
+	return JSON.stringify({ color }, undefined, 2)
 }
 
-/** Export active scale as CSS custom properties */
+/** Export all scales as CSS custom properties */
 export function exportAsCSS(): string {
-	let scale = $scale.get()
-	let properties = scale
-		.map(
-			(s) =>
-				`  --color-${String(s.stop)}: oklch(${(s.L * 100).toFixed(1)}% ${s.C.toFixed(3)} ${s.H.toFixed(1)});`,
-		)
+	let scales = $scales.get()
+	let properties = scales
+		.flatMap((scale, index) => {
+			let name = getScaleName(index)
+			return scale.map(
+				(s) =>
+					`  --color-${name}-${String(s.stop)}: oklch(${(s.L * 100).toFixed(1)}% ${s.C.toFixed(3)} ${s.H.toFixed(1)});`,
+			)
+		})
 		.join('\n')
 
 	return `:root {\n${properties}\n}`

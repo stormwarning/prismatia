@@ -1,6 +1,6 @@
 import './swatch-button.js'
 
-import { $fullScales, addScale } from '../stores/scale.js'
+import { $fullScales, addScale, getScaleName } from '../stores/scale.js'
 import { css, html } from './_utilities.js'
 
 const styles = css`
@@ -89,7 +89,7 @@ export class ColorStrip extends HTMLElement {
 					.map(
 						(scale, scaleIndex) => html`
 							<div class="strip-row">
-								<span>Scale ${String(scaleIndex)}</span>
+								<span>${getScaleName(scaleIndex)}</span>
 								<div
 									class="strip"
 									data-scale-index="${String(scaleIndex)}"
