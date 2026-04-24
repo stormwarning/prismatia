@@ -226,10 +226,11 @@ export function exportAsDesignTokensJSON(): string {
 
 	for (let [index, scale] of fullScales.entries()) {
 		let name = getScaleName(index)
-		let tokens: Record<string, unknown> = { $type: 'color' }
+		let tokens: Record<string, unknown> = {}
 
 		for (let s of scale) {
 			tokens[String(s.stop)] = {
+				$type: 'color',
 				$value: {
 					colorSpace: 'oklch',
 					components: [
