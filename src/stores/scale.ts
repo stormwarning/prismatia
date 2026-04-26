@@ -199,7 +199,7 @@ export function addScale(): void {
 	let lastScale = scales.at(-1) ?? []
 	let gamut = $gamut.get()
 	let newScale: ColorStep[] = lastScale.map((step) => {
-		let newH = (((step.H - 45) % 360) + 360) % 360
+		let newH = (((step.H - 60) % 360) + 360) % 360
 		let newStep = { ...step, H: newH }
 		let validC = getValidRangesForChannel('C', newStep, gamut)
 		newStep.C = clampToValidRanges(step.C, validC)
