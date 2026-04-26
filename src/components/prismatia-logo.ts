@@ -14,14 +14,13 @@ const styles = css`
 
 	.logo {
 		--hue: 310;
-		--rotation: 0;
 
 		display: flex;
 		gap: 8px;
 		align-items: center;
 	}
 
-	/* Initial animation: rotate 360deg + offset to reach target hue */
+	/* Initial animation: full 360° spin landing on the JS-supplied target hue */
 	.logo.initial-load {
 		.logo-low,
 		.logo-overlay,
@@ -29,6 +28,16 @@ const styles = css`
 		.logo-blend,
 		.logo-high {
 			animation: rotate-hue 2s linear;
+		}
+	}
+
+	.logo:not(.initial-load) {
+		.logo-low,
+		.logo-overlay,
+		.logo-medium,
+		.logo-blend,
+		.logo-high {
+			transition: --hue 400ms ease;
 		}
 	}
 
@@ -40,6 +49,11 @@ const styles = css`
 	.logo-low {
 		fill: #306;
 		fill: oklch(27.57% 0.1499 calc(var(--hue) - 13));
+
+		@media (prefers-color-scheme: dark) {
+			stroke: rgb(255 255 255 / 30%);
+			stroke-width: 0.5;
+		}
 	}
 
 	.logo-overlay {
@@ -77,36 +91,37 @@ const styles = css`
 	}
 
 	@keyframes rotate-hue {
+		from {
+			--hue: 310;
+		}
 		to {
-			--hue: calc(670);
+			--hue: var(--target-hue);
 		}
 	}
 `
 
 const template = html`
 	<div class="logo initial-load">
-		<svg width="32" height="32" viewBox="0 0 576 576" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none">
 			<path
 				class="logo-low"
-				d="M39 185.606C39 159.863 52.7441 136.079 75.048 123.225L252.048 21.2153C300.048 -6.4482 360 28.1959 360 83.5968V288.394C360 314.137 346.256 337.921 323.952 350.775L146.952 452.785C98.952 480.448 39 445.804 39 390.403V185.606Z"
+				d="M2.167 10.311a4 4 0 0 1 2.002-3.465l9.834-5.667C16.669-.358 20 1.566 20 4.644v11.378a4 4 0 0 1-2.003 3.466l-9.833 5.667c-2.667 1.537-5.997-.388-5.997-3.466z"
 			/>
 			<path
 				class="logo-overlay"
-				d="M357.677 65.166C359.187 70.985 360 77.1501 360 83.5967V288.394C360 314.136 346.256 337.921 323.952 350.775L146.952 452.784C141.527 455.911 135.949 458.238 130.322 459.833C128.812 454.014 128 447.849 128 441.403V236.606C128 210.864 141.744 187.079 164.048 174.225L341.048 72.2158C346.473 69.0895 352.051 66.7608 357.677 65.166Z"
+				d="M19.869 3.622q.128.485.13 1.022v11.378a4 4 0 0 1-2.001 3.466l-9.834 5.666c-.301.174-.611.3-.923.39a4 4 0 0 1-.13-1.021V13.145a4 4 0 0 1 2.003-3.466l9.833-5.667q.452-.258.922-.39"
 			/>
 			<path
 				class="logo-medium"
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M357.677 65.1656C401.834 52.6494 449 85.4574 449 134.597V339.394C449 365.137 435.256 388.921 412.952 401.775L235.952 503.785C193.537 528.229 141.792 504.023 130.323 459.834C135.949 458.239 141.528 455.911 146.952 452.785L323.952 350.775C346.256 337.921 360 314.137 360 288.394V83.5973C360 77.1506 359.187 70.9848 357.677 65.1656Z"
+				d="M19.87 3.622c2.453-.697 5.074 1.125 5.074 3.856v11.378c0 1.43-.764 2.751-2.003 3.465l-9.833 5.667c-2.357 1.359-5.231.012-5.867-2.445.312-.088.622-.215.923-.389l9.833-5.667A4 4 0 0 0 20 16.022V4.645c0-.358-.047-.7-.13-1.023"
 			/>
 			<path
 				class="logo-blend"
-				d="M446.608 115.907C448.162 121.802 449 128.054 449 134.597V339.394C449 365.136 435.256 388.921 412.952 401.775L235.952 503.784C230.228 507.083 224.333 509.495 218.391 511.092C216.837 505.197 216 498.945 216 492.403V287.606C216 261.864 229.744 238.079 252.048 225.225L429.048 123.216C434.772 119.917 440.666 117.504 446.608 115.907Z"
+				d="M24.81 6.44c.086.328.134.674.134 1.037v11.378a4 4 0 0 1-2.003 3.466l-9.833 5.667a4 4 0 0 1-.974.404A4 4 0 0 1 12 27.355V15.978a4 4 0 0 1 2.003-3.465l9.833-5.667q.477-.273.974-.406"
 			/>
 			<path
 				class="logo-high"
-				d="M446.608 115.907C490.494 104.111 537 136.803 537 185.597V390.394C537 416.137 523.256 439.921 500.952 452.776L323.952 554.784C281.62 579.182 229.993 555.116 218.391 511.091C224.333 509.494 230.228 507.083 235.952 503.784L412.952 401.776C435.256 388.921 449 365.137 449 339.394V134.597C449 128.055 448.162 121.802 446.608 115.907Z"
+				d="M24.81 6.44c2.438-.656 5.023 1.16 5.023 3.87V21.69a4 4 0 0 1-2.002 3.466l-9.834 5.667c-2.352 1.355-5.22.017-5.863-2.43q.497-.131.974-.404l9.833-5.667a4 4 0 0 0 2.003-3.466V7.478c0-.363-.048-.71-.134-1.037"
 			/>
 		</svg>
 	</div>
@@ -129,21 +144,23 @@ export class PrismatiaLogo extends HTMLElement {
 		shadow.append(templateElement.content.cloneNode(true))
 
 		this.logoEl = shadow.querySelector('.logo')
-		this.logoEl?.classList.add('initial-load')
 
-		// Subscribe to active color changes
+		let isFirstLoad = true
 		$activeFullColor.subscribe((color) => {
-			if (this.logoEl && color) {
-				let currentHue = color.H
-				let baseHue = 310
-				let rotation = currentHue - baseHue
+			if (!this.logoEl || !color) return
 
-				// Remove the initial animation class
-				// this.logoEl.classList.remove('initial-load')
+			let currentHue = color.H
+			this.logoEl.style.setProperty('--hue', String(currentHue))
 
-				// Update the rotation without animation
-				this.logoEl.style.setProperty('--rotation', String(rotation))
-				this.logoEl.style.setProperty('--hue', String(currentHue))
+			if (isFirstLoad) {
+				isFirstLoad = false
+				this.logoEl.style.setProperty('--target-hue', String(currentHue + 360))
+				let path = this.logoEl.querySelector('.logo-medium')
+				path?.addEventListener(
+					'animationend',
+					() => this.logoEl?.classList.remove('initial-load'),
+					{ once: true },
+				)
 			}
 		})
 	}
