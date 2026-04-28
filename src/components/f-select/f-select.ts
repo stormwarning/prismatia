@@ -68,7 +68,7 @@ const styles = css`
 		position: fixed;
 		inset: auto;
 		inset-block-start: calc(anchor(start) - var(--_anchor-offset, 0px));
-		inset-inline-start: anchor(start);
+		inset-inline-start: calc(anchor(start) - 4px);
 		padding-block: var(--_picker-padding-block);
 		margin: 0;
 		position-anchor: --f-select;
@@ -82,8 +82,8 @@ const styles = css`
 		transform-origin: 50% var(--_anchor-offset, 0);
 		scale: 0.96;
 		transition:
-			opacity 0.15s ease,
-			scale 0.15s ease,
+			opacity 0.15s ease-out,
+			scale 0.15s ease-out,
 			display 0.15s allow-discrete,
 			overlay 0.15s allow-discrete;
 	}
@@ -141,12 +141,10 @@ export class FSelect extends HTMLElement {
 
 	connectedCallback(): void {
 		this.render()
-		this.selectEl.addEventListener('beforetoggle', this._onBeforeToggle)
 		this.selectEl.addEventListener('change', this._onChange)
 	}
 
 	disconnectedCallback(): void {
-		this.selectEl.removeEventListener('beforetoggle', this._onBeforeToggle)
 		this.selectEl.removeEventListener('change', this._onChange)
 	}
 
@@ -193,22 +191,20 @@ export class FSelect extends HTMLElement {
 
 		if (initialValue) {
 			this.selectEl.value = initialValue
+			this._updateAnchorOffset()
 		}
 	}
 
 	private _updateAnchorOffset(): void {
-		let offset = PICKER_PADDING_BLOCK + this.selectEl.selectedIndex * OPTION_HEIGHT
+		let offset = PICKER_PADDING_BLOCK + 1 + this.selectEl.selectedIndex * OPTION_HEIGHT
 		this.selectEl.style.setProperty('--_anchor-offset', `${String(offset)}px`)
 	}
 
-	private _onBeforeToggle = (_event: Event): void => {
-		let event = _event as ToggleEvent
-		if (event.newState === 'open') {
-			this._updateAnchorOffset()
-		}
-	}
 	private _onChange = (): void => {
 		this.dispatchEvent(new Event('change', { bubbles: true }))
+		setTimeout(() => {
+			this._updateAnchorOffset()
+		}, 150)
 	}
 }
 
