@@ -25,7 +25,6 @@ const styles = css`
 		font-weight: 500;
 		line-height: 1.25rem;
 		color: var(--ui-foreground);
-		cursor: pointer;
 		background: var(--ui-bg-secondary);
 		border: 0;
 		border-radius: var(--select-radius, var(--radius-sm));
@@ -52,11 +51,14 @@ const styles = css`
 		display: none;
 	}
 
+	/**
+	 * 1. 5px = 4px margin on options + 1px border on picker.
+	 */
 	select::picker(select) {
 		position: fixed;
 		inset: auto;
 		inset-block-start: calc(anchor(start) - var(--_anchor-offset, 0px));
-		inset-inline-start: calc(anchor(start) - 4px);
+		inset-inline-start: calc(anchor(start) - 5px); /* [1] */
 		padding-block: var(--_picker-padding-block);
 		margin: 0;
 		position-anchor: --f-select;
@@ -81,17 +83,10 @@ const styles = css`
 		scale: 1;
 	}
 
-	@starting-style {
-		select:open::picker(select) {
-			opacity: 0;
-			scale: 0.96;
-		}
-	}
-
 	button {
 		svg {
-			inline-size: 14px;
-			block-size: 14px;
+			inline-size: 1em;
+			block-size: 1em;
 			opacity: 0.5;
 		}
 	}
@@ -103,8 +98,8 @@ const styles = css`
 		padding-inline: 12px;
 		margin-inline: 4px;
 		font-family: var(--text-family-mono, monospace);
-		font-size: 12px;
-		cursor: pointer;
+		font-size: var(--select-font-size, var(--font-size-md));
+		font-weight: 400;
 		border-radius: var(--radius-sm, 2px);
 		transition: background 0.08s;
 	}
@@ -120,6 +115,13 @@ const styles = css`
 
 	option::checkmark {
 		display: none;
+	}
+
+	@starting-style {
+		select:open::picker(select) {
+			opacity: 0;
+			scale: 0.96;
+		}
 	}
 `
 
