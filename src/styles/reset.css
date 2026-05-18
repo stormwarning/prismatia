@@ -8,6 +8,14 @@
 	font-display: swap;
 }
 
+@font-face {
+	font-family: "Iosevka Aile";
+	font-style: normal;
+	font-weight: 500;
+	src: url("/iosevka-medium.woff2") format("woff2");
+	font-display: swap;
+}
+
 @layer reset {
 	html {
 		color-scheme: light dark;
