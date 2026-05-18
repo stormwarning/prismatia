@@ -7,15 +7,6 @@ const styles = css`
 	:host {
 		--_option-height: ${String(OPTION_HEIGHT)}px;
 		--_picker-padding-block: ${String(PICKER_PADDING_BLOCK)}px;
-		--icon-light: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>');
-		--icon-dark: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>');
-		--select-icon: var(--icon-dark);
-
-		display: inline-block;
-
-		@media (prefers-color-scheme: dark) {
-			--select-icon: var(--icon-light);
-		}
 	}
 
 	select,
@@ -30,21 +21,22 @@ const styles = css`
 		padding: 6px 12px;
 		anchor-name: --f-select;
 		font-family: var(--text-family-mono, monospace);
-		font-size: 12px;
+		font-size: var(--select-font-size, var(--font-size-md));
+		font-weight: 500;
+		line-height: 1.25rem;
 		color: var(--ui-foreground);
 		cursor: pointer;
 		background: var(--ui-bg-secondary);
-		border: 1px solid var(--ui-border);
-		border-radius: var(--radius-sm, 2px);
+		border: 0;
+		border-radius: var(--select-radius, var(--radius-sm));
 		transition:
 			background 0.12s,
-			border-color 0.12s,
 			scale 0.12s;
 		will-change: scale;
 	}
 
 	select:hover {
-		border-color: var(--grey-400);
+		background-color: var(--ui-bg-tertiary);
 	}
 
 	select:active {
@@ -57,11 +49,7 @@ const styles = css`
 	}
 
 	select::picker-icon {
-		inline-size: 14px;
-		block-size: 14px;
-		content: var(--select-icon);
-		opacity: 0.5;
-		transition: rotate 0.2s ease;
+		display: none;
 	}
 
 	select::picker(select) {
@@ -97,6 +85,14 @@ const styles = css`
 		select:open::picker(select) {
 			opacity: 0;
 			scale: 0.96;
+		}
+	}
+
+	button {
+		svg {
+			inline-size: 14px;
+			block-size: 14px;
+			opacity: 0.5;
 		}
 	}
 
@@ -185,6 +181,20 @@ export class FSelect extends HTMLElement {
 				${styles}
 			</style>
 			<select>
+				<button>
+					<selectedcontent></selectedcontent>
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentcolor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<path d="m7 15 5 5 5-5" />
+						<path d="m7 9 5-5 5 5" />
+					</svg>
+				</button>
 				${options}
 			</select>
 		`

@@ -28,6 +28,10 @@
 	/* Type styles. */
 	--text-family-mono: "Iosevka Aile", ui-monospace, "SFMono-Regular", monospace;
 
+	/** Font size scale. */
+	--font-size-sm: 0.75rem;
+	--font-size-md: 0.875rem;
+
 	/** Radius. */
 	--radius-sm: 2px;
 	--radius-md: 4px;

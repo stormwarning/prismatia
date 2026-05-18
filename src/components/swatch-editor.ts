@@ -105,10 +105,15 @@ const styles = css`
 	}
 
 	.color-input-group {
+		--select-font-size: var(--font-size-sm);
+		--select-radius: 1px;
+
 		display: flex;
-		gap: var(--space-xs);
+		gap: 1px;
 		align-items: center;
+		padding: 1px;
 		border: 1px solid var(--ui-border);
+		border-radius: 2px;
 	}
 
 	input:focus {
